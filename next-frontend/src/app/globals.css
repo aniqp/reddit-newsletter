@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('/fonts.css');
 
 :root {
   --black-75: rgba(0, 0, 0, 0.75);
@@ -23,6 +24,23 @@ a {
 
 body {
   background-color: #fff;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto; 
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  height: 100vh;
+  width: 25rem; 
+  z-index: 2;
+  overflow-y: auto;
+  padding: 0 1.2rem;
+  border-right: 1px solid var(--light-grey);
 }
 
 input {
@@ -33,18 +51,26 @@ input {
   background-color: rgb(247,247,247);
 }
 
+
 .btn {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 3.3rem;
   padding: 0.7rem;
-  /* margin-top: 1rem; */
   border-radius: 6px;
   cursor: pointer;
 }
 
 /********* Login Card Component *********/
+.app-title {
+  font-family: 'American Typewriter';
+}
+
+input.login {
+  border-radius: 8px;
+  background-color: rgb(247,247,247);
+}
 
 .login-card {
   padding: 5rem;
@@ -94,20 +120,57 @@ input {
 }
 
 /********* User Subreddits Component *********/
-.subreddit-list {
-  height: 70vh;
-  overflow: auto;
-  border: 1px solid var(--light-grey);
-  border-radius: 6px 6px 0 0;
+.active-tab {
+  background-color: rgba(255, 69, 0, 0.3);
+  color: #000000;
+  border-radius: 10px;
 }
 
-.subreddit-list-btn-group {
+.subreddit-card {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--light-grey);
-  border-right: 1px solid var(--light-grey);
-  border-left: 1px solid var(--light-grey);
-  border-radius: 0 0 6px 6px;
+  padding: 1.25rem;
+  border: 1px solid var(--light-grey);
+  border-radius: 10px;
 }
+
+.subreddit-card:hover {
+  cursor: pointer;
+  background-color: var(--light-grey);
+}
+
+button.unsubscribe{
+  border: 1px solid var(--light-grey);
+}
+button.unsubscribe:hover {
+  background: var(--light-grey);
+}
+
+/* Explore Component */
+
+input.search {
+  background-color: #fff;
+  border: 1px solid var(--light-grey);
+  border-radius: 20px;
+}
+
+/* Account Settings Component */
+.account-card{
+  padding: 1.25rem;
+  border: 1px solid var(--light-grey);
+  border-radius: 10px;
+}
+
+.account-card-header{
+  border-bottom: 1px solid var(--light-grey);
+}
+
+button.account{
+  background-color: #ffffff;
+  color: #3f3f3f;
+  border: 1.5px solid rgb(161, 43, 0);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+

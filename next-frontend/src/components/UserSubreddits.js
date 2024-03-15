@@ -17,18 +17,21 @@ const subreddits = [
 
 const UserSubreddits = () => {
   return (
-    <div>
-        <div className='text-2xl font-bold'>Your Subscribed Subreddits</div>
-        <div className='subreddit-list bg-slate-200'>
-            {subreddits.map(subreddit => (
-                <div className='mx-5 my-5'>
-                    <SubredditCard subreddit={subreddit} />
-                </div>
-            ))}
-        </div>
-        <div className='subreddit-list-btn-group flex justify-around py-5'>
-            <button className='btn bg-gray-100 text-gray-400 rounded-md'>Unsubscribe from all</button>
-            <button className='btn bg-blue-500 text-white rounded-md'>Save Changes</button>
+    <div className='w-full overflow-scroll'>
+        <div className='text-3xl font-bold mb-5'>Subscribed Subreddits</div>
+        <div className='flex'>
+            <div className='w-8/12'>
+                {subreddits.map((subreddit, index) => (
+                    <div className={`${index === 0 ? "" : "my-3"} ${index === (subreddits.length - 1) ? "mb-10" : ""}`}>
+                        <SubredditCard subreddit={subreddit} />
+                    </div>
+                ))}
+            </div>
+            <div className='flex flex-col mx-auto w-64'>
+                <button className='btn mb-5 bg-blue-500 text-white rounded-md'>Update Subreddits</button>
+                <button className='btn mb-5 bg-blue-500 text-white rounded-md'>Save Changes</button>
+                <button className='unsubscribe btn rounded-md'>Unsubscribe from all</button>
+            </div>
         </div>
     </div>
   )
@@ -36,7 +39,7 @@ const UserSubreddits = () => {
 
 const SubredditCard = ({ subreddit }) => {
     return (
-        <div onClick={console.log('switch')} className='hover:cursor-pointer flex justify-between bg-white rounded-md p-5'>
+        <div className='subreddit-card' onClick={console.log()}>
             <div>
                 <div className='font-bold'>{subreddit.name}</div>
                 <div>

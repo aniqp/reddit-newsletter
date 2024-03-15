@@ -1,18 +1,17 @@
 import React from 'react'
 import Image from "next/image";
-import Input from "@/components/Input"
 import Link from "next/link";
 
 const LoginCard = () => {
   return (
     <div className="w-full flex justify-center">
         <div className="w-8/12 login-card">
-            <div className="text-3xl font-semibold text-center mb-8">Login</div>
+            <div className="text-3xl font-semibold text-center mb-8">Account Login</div>
             <div className="mb-5">
-                <Input placeholder={"Email"} />
+                <input className="login" type="text" placeholder="Email" />
             </div>
             <div className="mb-1">
-                <Input placeholder={"Password"} />
+                <input className="login" type="text" placeholder={"Password"} />
             </div>
             <a className="flex justify-end text-sm b-50">
                 <span>Forgot password?</span>

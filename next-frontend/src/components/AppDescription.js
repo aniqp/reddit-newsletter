@@ -3,10 +3,10 @@ import React from 'react'
 const AppDescription = () => {
   return (
     <div className='h-screen flex flex-col justify-center pl-40'>
-        <div className='text-3xl mb-5'>
+        <div className='app-title text-3xl mb-5'>
             Reddit Newsletter
         </div>
-        <div className='text-5xl mb-8'>
+        <div className='text-5xl mb-8 font-bold'>
             A one-stop tool for Reddit users
         </div>
         <div className='text-lg'>
