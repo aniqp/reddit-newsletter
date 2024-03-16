@@ -110,7 +110,7 @@ func GetSubreddits(accessToken string) ([]byte, error) {
 
 func GetHotPosts(accessToken string, subreddit string) ([]byte, error) {
 	// Create a new GET request
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/hot?limit=10", subreddit), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/top?sort=hot&t=day&limit=10", subreddit), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
@@ -142,7 +142,7 @@ func GetHotPosts(accessToken string, subreddit string) ([]byte, error) {
 
 func GetComments(accessToken string, subreddit string, post_id string) ([]byte, error) {
 	// Create a new GET request
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s?sort=hot&limit=20&depth=3", subreddit, post_id), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s/top?sort=hot&t=day&limit=20&depth=3&truncate=25", subreddit, post_id), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
@@ -192,8 +192,6 @@ func main() {
 
 	r.GET("/hotpostsandcomments", func(c *gin.Context) {
 		subreddit := c.Query("subreddit")
-		
-		fmt.Println("subreddit:", subreddit)
 
 		body, err := GetHotPosts(accessToken, subreddit)
 
