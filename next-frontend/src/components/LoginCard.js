@@ -19,10 +19,10 @@ const LoginCard = () => {
             <Link href="/subreddits">
                 <button className="btn email-login-btn">Log in</button>
             </Link>
-            <div class="line-or-line">
-                <span class="line"></span>
-                <span class="or-text">OR</span>
-                <span class="line"></span>
+            <div className="line-or-line">
+                <span className="line"></span>
+                <span className="or-text">OR</span>
+                <span className="line"></span>
             </div>
             <button className="btn reddit-login-btn">
                 <div className="flex items-center">
