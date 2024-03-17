@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('/fonts.css');
+
+:root {
+  --black-75: rgba(0, 0, 0, 0.75);
+  --black-50: rgba(0, 0, 0, 0.5);
+  --black-25: rgba(0, 0, 0, 0.25);
+  --light-grey: #e8e8e8;
+}
+
+a {
+  cursor: pointer;
+}
+
+.b-75 {
+  color: var(--black-75);
+}
+
+.b-50 {
+  color: var(--black-50);
+}
+
+body {
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto; 
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  height: 100vh;
+  width: 25rem; 
+  z-index: 2;
+  overflow-y: auto;
+  padding: 0 1.2rem;
+  border-right: 1px solid var(--light-grey);
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem 1.2rem;
+  height: 3.2rem;
+  border-radius: 8px;
+  background-color: rgb(247,247,247);
+}
+
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3.3rem;
+  padding: 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/********* Login Card Component *********/
+.app-title {
+  font-family: 'American Typewriter';
+}
+
+input.login {
+  border-radius: 8px;
+  background-color: rgb(247,247,247);
+}
+
+.login-card {
+  padding: 5rem;
+  border-radius: 20px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.email-login-btn {
+  width: 100%;
+  margin-top: 1rem;
+  color: #fff;
+  background-color: #ff4500;
+}
+
+.email-login-btn:hover {
+  background-color: #ee4000;
+}
+
+.reddit-login-btn {
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #e8e8e8;
+  font-weight: 400;
+}
+
+.reddit-login-btn:hover {
+  background-color: #f4f4f4;
+}
+
+.line-or-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--light-grey);
+}
+
+.or-text {
+  padding: 0 20px;
+  color: var(--black-25);
+}
+
+/********* User Subreddits Component *********/
+.active-tab {
+  background-color: rgba(255, 69, 0, 0.3);
+  color: #000000;
+  border-radius: 10px;
+}
+
+.subreddit-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border: 1px solid var(--light-grey);
+  border-radius: 10px;
+}
+
+.subreddit-card:hover {
+  cursor: pointer;
+  background-color: var(--light-grey);
+}
+
+button.unsubscribe{
+  border: 1px solid var(--light-grey);
+}
+button.unsubscribe:hover {
+  background: var(--light-grey);
+}
+
+/* Explore Component */
+
+input.search {
+  background-color: #fff;
+  border: 1px solid var(--light-grey);
+  border-radius: 20px;
+}
+
+/* Account Settings Component */
+.account-card{
+  padding: 1.25rem;
+  border: 1px solid var(--light-grey);
+  border-radius: 10px;
+}
+
+.account-card-header{
+  border-bottom: 1px solid var(--light-grey);
+}
+
+button.account{
+  background-color: #ffffff;
+  color: #3f3f3f;
+  border: 1.5px solid rgb(161, 43, 0);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
