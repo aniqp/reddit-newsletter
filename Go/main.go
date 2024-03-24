@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"time"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -194,7 +193,7 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:3005" // Use this to allow specific origins
+			return origin == "http://localhost:3000" // Use this to allow specific origins
 		},
 		MaxAge: 12 * time.Hour,
 	}

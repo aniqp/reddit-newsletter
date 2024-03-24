@@ -1,29 +1,40 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
+import { subredditsApi } from '@/app/api'
 
-const subreddits = [
-    { name: 'r/aww', description: 'A subreddit for cute and cuddly pictures', isSubscribed: true },
-    { name: 'r/reactjs', description: 'A subreddit for ReactJS news and discussion', isSubscribed: false },
-    { name: 'r/programming', description: 'A subreddit for news and discussion about programming', isSubscribed: true },
-    { name: 'r/gaming', description: 'A subreddit for news and discussion about gaming', isSubscribed: false },
-    { name: 'r/movies', description: 'A subreddit for news and discussion about movies', isSubscribed: false },
-    { name: 'r/food', description: 'A subreddit for news and discussion about food', isSubscribed: false },
-    { name: 'r/askreddit', description: 'A subreddit for news and discussion about anything', isSubscribed: true },
-    { name: 'r/askscience', description: 'A subreddit for news and discussion about science', isSubscribed: true },
-    { name: 'r/askhistorians', description: 'A subreddit for news and discussion about history', isSubscribed: true },
-    { name: 'r/askmen', description: 'A subreddit for news and discussion', isSubscribed: false}
-]
+// const subreddits = [
+//     { name: 'r/aww', description: 'A subreddit for cute and cuddly pictures', isSubscribed: true },
+//     { name: 'r/reactjs', description: 'A subreddit for ReactJS news and discussion', isSubscribed: false },
+//     { name: 'r/programming', description: 'A subreddit for news and discussion about programming', isSubscribed: true },
+//     { name: 'r/gaming', description: 'A subreddit for news and discussion about gaming', isSubscribed: false },
+//     { name: 'r/movies', description: 'A subreddit for news and discussion about movies', isSubscribed: false },
+//     { name: 'r/food', description: 'A subreddit for news and discussion about food', isSubscribed: false },
+//     { name: 'r/askreddit', description: 'A subreddit for news and discussion about anything', isSubscribed: true },
+//     { name: 'r/askscience', description: 'A subreddit for news and discussion about science', isSubscribed: true },
+//     { name: 'r/askhistorians', description: 'A subreddit for news and discussion about history', isSubscribed: true },
+//     { name: 'r/askmen', description: 'A subreddit for news and discussion', isSubscribed: false}
+// ]
 
 
 const UserSubreddits = () => {
-  return (
+    const [subreddits, setSubreddits] = useState([])
+    React.useEffect(() => {
+        const fetchData = async () => {
+          const res = await subredditsApi()
+          setSubreddits(res.data.children)
+          console.log(res)
+        }
+        fetchData()
+      }, [])
+    
+    return (
     <div className='w-full overflow-scroll'>
         <div className='text-3xl font-bold mb-5'>Subscribed Subreddits</div>
         <div className='flex'>
             <div className='w-8/12'>
                 {subreddits.map((subreddit, index) => (
                     <div className={`${index === 0 ? "" : "my-3"} ${index === (subreddits.length - 1) ? "mb-10" : ""}`}>
-                        <SubredditCard subreddit={subreddit} />
+                        <SubredditCard subreddit={subreddit.data} />
                     </div>
                 ))}
             </div>
@@ -41,17 +52,17 @@ const SubredditCard = ({ subreddit }) => {
     return (
         <div className='subreddit-card' onClick={console.log()}>
             <div>
-                <div className='font-bold'>{subreddit.name}</div>
+                <div className='font-bold'>{subreddit.display_name_prefixed}</div>
                 <div>
-                    {subreddit.description}
+                    {subreddit.public_description}
                 </div>
             </div>
             <div>
-                <label htmlFor={`subscribe-${subreddit.name}`} className='flex items-center cursor-pointer'>
+                <label htmlFor={`subscribe-${subreddit.display_name_prefixed}`} className='flex items-center cursor-pointer'>
                     <input
-                        id={`subscribe-${subreddit.name}`}
+                        id={`subscribe-${subreddit.display_name_prefixed}`}
                         type="checkbox"
-                        checked={subreddit.isSubscribed}
+                        checked={true}
                         // onChange={(e) => onSubscriptionChange(e.target.checked, subreddit)}
                         className='mr-2'
                     />

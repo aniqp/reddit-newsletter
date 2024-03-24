@@ -5,21 +5,12 @@ import Sidebar from '@/components/Sidebar';
 import Explore from '@/components/Explore';
 import AccountSettings from '@/components/AccountSettings';
 import React from 'react';
-import { subreddits } from '@/app/api'
 
 
 export default function SubredditPage() {
   const [activeTab, setActiveTab] = useState(1);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const res = await subreddits()
-      // const data = await res.json()
-      console.log(res)
-    }
-    fetchData()
-  }, [])
-
+  
   return (
     <div className='flex'>
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab}/>
