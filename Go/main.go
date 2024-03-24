@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,16 +26,15 @@ type SubredditResponse struct {
 }
 
 type SubredditHotPosts struct {
-	
 	Kind string `json:"kind"`
 	Data struct {
-		Children  []struct {
+		Children []struct {
 			Kind string `json:"kind"`
 			Data struct {
-				Title         string      `json:"title"`
-				Url           string      `json:"url"`
-				Selftext      string      `json:"selftext"`
-				Id            string      `json:"id"`
+				Title    string `json:"title"`
+				Url      string `json:"url"`
+				Selftext string `json:"selftext"`
+				Id       string `json:"id"`
 			} `json:"data"`
 		} `json:"children"`
 	} `json:"data"`
@@ -50,11 +52,10 @@ type SubredditComment struct {
 }
 
 type HotPostWithComments struct {
-	Title string             	`json:"title"`
-    SelfText string             `json:"selftext"`
-    Comments SubredditComment   `json:"comments"`
+	Title    string           `json:"title"`
+	SelfText string           `json:"selftext"`
+	Comments SubredditComment `json:"comments"`
 }
-
 
 // type Comment struct {
 // 	SubredditID     string `json:"subreddit_id"`
@@ -73,7 +74,6 @@ type HotPostWithComments struct {
 // 		} `json:"children"`
 // 	} `json:"data"`
 // }
-
 
 var client = &http.Client{}
 
@@ -173,8 +173,8 @@ func GetComments(accessToken string, subreddit string, post_id string) ([]byte, 
 }
 
 func main() {
-	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzEwNjE1MTk5LjM3Mjc5LCJpYXQiOjE3MTA1Mjg3OTkuMzcyNzksImp0aSI6IkR1LWR0MmRoME5FdmRQNzdiNjdBSnVwNU5RaThZUSIsImNpZCI6IkJTcnctR3NfWjFJVVZzaTlRZFlVSmciLCJsaWQiOiJ0Ml92bnhiOThkbnciLCJhaWQiOiJ0Ml92bnhiOThkbnciLCJsY2EiOjE3MDk3ODYxMjg4MzIsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.ThSF5Q8YCBPiapOz8sMCxL6od_Vxrt16GAgn54iadAYCrNPiirZikj6ZZNxFfxa9DaltGrSjLj-GlT3VGG9KHvLHVF7ioHWWDFUW3v5Ods2hW3Pp-1JsrWxFlzRLhkGCqlU797lg063VeEf4myZw0twtB5i-z50HiqUXY9eNS8yXKnN4uwrmBErXcEkpmFMzmR3eoZmZttn4STwmzuFjLzCdTP-ij8MyanREjamj7lHO5UMCj5_6mIOgzwREpBg9EHV1LK7Jwr96BBR7S8BlhL4GsIKFlBSw9URDa0Tyg_n6Nit5MsnO2D-Cdyu-GACUQdOLncqkSWS8rvnvS2TU-Q"
-	
+	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExMzI5MDU3Ljg2MzYyNCwiaWF0IjoxNzExMjQyNjU3Ljg2MzYyNCwianRpIjoiaFVSRFdJLUlpR2ZLSExFSTM4aS1ubm9xazdlclRRIiwiY2lkIjoicUk0bVgwQUctRGNaTFBEeWRZMHJtZyIsImxpZCI6InQyX2o0YnEwc3p4IiwiYWlkIjoidDJfajRicTBzengiLCJsY2EiOjE2NDMzOTc5MjcwMDAsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.Snixsf61qG82G0Ykv6V8S1jcu_c_dQYkYtHXfOW438KA0YFOKY5ez8UIrx_7mB7lpvjxBCkYFX53_iKRlo9M4WtRzWhX93d-zXosOJiknH_PSnd3Eq-7D2MfNU-iax_aARyVGF3HeJJPzR3QwvayL5j74pZZ3dj4eW-s5JNGyI90P4X4ZY9aU1yGPP7ytHZrz6bJXdwmmYJQmIkt9IyWFcbvA7tNC8KiD02ZJN65ck3o3QawGkr7_nwpLsmslvd9nM9OyNel25OrKs5J8d9p4_sKZdN2Gv3Y_nAIyGszv_1Wz7Y5KvoBFo2Zys1zW9A17wq0GvKVhphUo8MTecFG9g"
+
 	body, err := GetSubreddits(accessToken)
 
 	var subredditResponse SubredditResponse
@@ -185,6 +185,22 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	// Configure CORS middleware options
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Or the specific origins you want to allow
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:3005" // Use this to allow specific origins
+		},
+		MaxAge: 12 * time.Hour,
+	}
+
+	// Apply the middleware to the router (all routes)
+	r.Use(cors.New(config))
 
 	r.GET("/subreddits", func(c *gin.Context) {
 		c.JSON(http.StatusOK, subredditResponse)
@@ -209,7 +225,7 @@ func main() {
 		for _, child := range SubredditHotPosts.Data.Children {
 			fmt.Println("Selftext:", child.Data.Selftext)
 			hotPost := HotPostWithComments{
-				Title: child.Data.Title,
+				Title:    child.Data.Title,
 				SelfText: child.Data.Selftext,
 			}
 			body, err := GetComments(accessToken, subreddit, child.Data.Id)
@@ -226,7 +242,7 @@ func main() {
 			hotPostsWithComments = append(hotPostsWithComments, hotPost)
 		}
 
-			c.JSON(http.StatusOK, hotPostsWithComments)
+		c.JSON(http.StatusOK, hotPostsWithComments)
 	})
 
 	r.Run(":8080")
