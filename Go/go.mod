@@ -1,4 +1,4 @@
-module Go_Play_Ground
+module reddit-newsletter
 
 go 1.22.1
 
