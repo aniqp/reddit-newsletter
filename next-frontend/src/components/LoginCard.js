@@ -1,8 +1,14 @@
+"use client"
 import React from 'react'
 import Image from "next/image";
-import Link from "next/link";
+import { redirect } from 'next/navigation'
 
 const LoginCard = () => {
+    const handleLogin = async () => {
+        window.open(`https://reddit.com/api/v1/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&state=${process.env.STATE}&redirect_uri=${process.env.REDIRECT_URI}&duration=permanent&scope=identity,subscribe,save`, "_self")
+    }
+
+
   return (
     <div className="w-full flex justify-center">
         <div className="w-8/12 login-card">
@@ -16,9 +22,9 @@ const LoginCard = () => {
             <a className="flex justify-end text-sm b-50">
                 <span>Forgot password?</span>
             </a>
-            <Link href="/subreddits">
+            <a onClick={handleLogin}>
                 <button className="btn email-login-btn">Log in</button>
-            </Link>
+            </a>
             <div className="line-or-line">
                 <span className="line"></span>
                 <span className="or-text">OR</span>
