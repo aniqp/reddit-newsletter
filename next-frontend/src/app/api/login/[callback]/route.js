@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { checkUserExists, addNewUser } from '@/db/utils'
 
 export async function GET (req, res) {
     const queryParams = Object.fromEntries(req.nextUrl.searchParams);
@@ -42,8 +43,18 @@ export async function GET (req, res) {
       throw new Error(`Failed to retrieve user information: ${responseUser.statusText}`);
     }
 
-    const user = await responseUser.json();
-    // console.log(user);
+    const userBody = await responseUser.json();
+
+    const user = {
+      id: userBody.id,
+      name: userBody.name,
+      oauth_client_id: userBody.oauth_client_id,
+      accessToken: tokenBody.access_token,
+      refreshToken: tokenBody.refresh_token
+    }
+
+    await checkUserExists(user);
+
 
     return NextResponse.redirect(new URL('/subreddits', req.url));
 }
