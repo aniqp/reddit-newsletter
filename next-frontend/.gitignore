@@ -15,6 +15,9 @@
 
 # production
 /build
+.env
+serviceAcccountKey.json
+/src/firebase/firebaseConfig.js
 
 # misc
 .DS_Store

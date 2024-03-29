@@ -1,31 +1,21 @@
 "use client"
-import React, { useState } from 'react'
-import { subredditsApi } from '@/app/api'
-
-// const subreddits = [
-//     { name: 'r/aww', description: 'A subreddit for cute and cuddly pictures', isSubscribed: true },
-//     { name: 'r/reactjs', description: 'A subreddit for ReactJS news and discussion', isSubscribed: false },
-//     { name: 'r/programming', description: 'A subreddit for news and discussion about programming', isSubscribed: true },
-//     { name: 'r/gaming', description: 'A subreddit for news and discussion about gaming', isSubscribed: false },
-//     { name: 'r/movies', description: 'A subreddit for news and discussion about movies', isSubscribed: false },
-//     { name: 'r/food', description: 'A subreddit for news and discussion about food', isSubscribed: false },
-//     { name: 'r/askreddit', description: 'A subreddit for news and discussion about anything', isSubscribed: true },
-//     { name: 'r/askscience', description: 'A subreddit for news and discussion about science', isSubscribed: true },
-//     { name: 'r/askhistorians', description: 'A subreddit for news and discussion about history', isSubscribed: true },
-//     { name: 'r/askmen', description: 'A subreddit for news and discussion', isSubscribed: false}
-// ]
-
+import { useState, useEffect } from 'react'
 
 const UserSubreddits = () => {
     const [subreddits, setSubreddits] = useState([])
-    React.useEffect(() => {
-        const fetchData = async () => {
-          const res = await subredditsApi()
-          setSubreddits(res.data.children)
-          console.log(res)
-        }
-        fetchData()
-      }, [])
+
+    useEffect(() => {
+        const fetchSubreddits = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_GO_ENDPOINT}/subreddits`);
+                const res = await response.json();
+                setSubreddits(res.data.children);
+            } catch (error) {
+                console.error("Failed to fetch subreddits:", error);
+            }
+        };
+        fetchSubreddits();
+    }, []); 
     
     return (
     <div className='w-full overflow-scroll'>
