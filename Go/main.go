@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -92,19 +94,26 @@ func GetSubreddits(accessToken string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetSubreddits. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return GetSubreddits(accessToken)
+    }
+
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading response: %v", err)
+	if resp.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading response:", err)
+		}
+		return body, nil
 	}
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
-
-	return body, nil
+	body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetSubreddits failed with status: %s", resp.Status)
 }
 
 func GetHotPosts(accessToken string, subreddit string) ([]byte, error) {
@@ -124,55 +133,67 @@ func GetHotPosts(accessToken string, subreddit string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetHotPosts. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return GetHotPosts(accessToken, subreddit)
+    }
+
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading response:", err)
+	if resp.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading response:", err)
+		}
+		return body, nil
 	}
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
-
-	return body, nil
+	body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetHotPosts failed with status: %s", resp.Status)
 }
 
 func GetComments(accessToken string, subreddit string, post_id string) ([]byte, error) {
-	// Create a new GET request
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s/top?sort=hot&t=day&limit=20&depth=3&truncate=25", subreddit, post_id), nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %v", err)
-	}
+    url := fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s/top?sort=hot&t=day&limit=10&depth=1", subreddit, post_id)
 
-	// Add authorization header with OAuth2 access token
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        return nil, fmt.Errorf("error creating request: %v", err)
+    }
+    req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	// Send the request
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Error sending request:", err)
-	}
-	defer resp.Body.Close()
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("error sending request: %v", err)
+    }
+    defer resp.Body.Close()
 
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading response:", err)
-	}
+    if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetComments. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return GetComments(accessToken, subreddit, post_id)
+    }
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
+    if resp.StatusCode == http.StatusOK {
+        body, err := io.ReadAll(resp.Body)
+        if err != nil {
+            return nil, fmt.Errorf("error reading response: %v", err)
+        }
+		fmt.Println("Got comments for 1 post")
+        return body, nil
+    }
 
-	return body, nil
+    body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetComments failed with status: %s", resp.Status)
 }
 
 func main() {
-	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExMzMxODIxLjkwODkyLCJpYXQiOjE3MTEyNDU0MjEuOTA4OTIsImp0aSI6Ilk1Z1RmYXBRUHlrdUFOZkllMkowcWJBZG1GaW1XdyIsImNpZCI6IkJTcnctR3NfWjFJVVZzaTlRZFlVSmciLCJsaWQiOiJ0Ml92bnhiOThkbnciLCJhaWQiOiJ0Ml92bnhiOThkbnciLCJsY2EiOjE3MDk3ODYxMjg4MzIsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.KVbUxz2bg1Mi0LIZn7B8r36pPBgptuzlGBERKHrXTOG3YmGu-2-x14RjGJ0N3jZSjsp6KKjlzW7k9z76ov6M494kCBrOrtVK2nNLkqZ1rZ2cUnAoj7389YAOu5rQzi-7-FCrotvZEHWzPDKcaPBAy1xNFONVDd9__VTrXmgFrDXBRPvSqsG0o3QQL22DuYZ17AuFgIKItVbb1S3fypwp05Bq5zMTGYSN-s4ORlXoETeYgoSCQlaxpaDZ3kKOaw3qvRM3vdpc3aMX9akDAnVz3W9RgAHA1Zz9oHk3-g2Umo-aFuhrZcjlnsq-Jm6dmwgWxflugzU-e9Ak1hSNs207lQ"
+	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExOTA5MjMyLjg2NTM0MywiaWF0IjoxNzExODIyODMyLjg2NTM0MywianRpIjoiZWQtX0JabUN5TjFkZmpkY3hRZ2lvcDk3ajZvSjdBIiwiY2lkIjoicUk0bVgwQUctRGNaTFBEeWRZMHJtZyIsImxpZCI6InQyX2o0YnEwc3p4IiwiYWlkIjoidDJfajRicTBzengiLCJsY2EiOjE2NDMzOTc5MjcwMDAsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.DYZw4Thr2aPVQ9I5IwMTDBgaar0_IfRrR6FXL2sL-ec_aKmdJs670NqUmyJOvsaDa7ubM22kR0TwW0sowkCNQtzZGbJxcn-7SI9XSawA0zA4DbQRXxJTCC_q5ZCVy-P-3xlhw2ElPWrj53hJDZ6E7QvwnmAcjfCBDWd_XbS7GXiQPK6j_ijBbeF2_EQK4LPlHK0QhE_SrjYHmQGYRmALrO6rVcPACIQ54LX9NKdCfx-9mUfnrB4nQKD3-DDSuPPg8ZD8MhUv_Cs8qSn_jBVkd89PanXbWzKv6kNEZFXEzkZ0iFiC7AClNUv1Cl0Z9wK1TaGEa8wLacBQJxJqtg1Vmg"
 
 	r := gin.Default()
 
@@ -225,6 +246,7 @@ func main() {
 
 				hotPost.Comments = subredditComments[1]
 				hotPostsWithComments = append(hotPostsWithComments, hotPost)
+				time.Sleep(1 * time.Second)
 			}()
 		}
 		wg.Wait()
