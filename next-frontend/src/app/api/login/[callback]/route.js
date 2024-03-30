@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { checkUserExists, addNewUser } from '@/db/utils'
+import { checkUserExists } from '@/db/utils'
 
 export async function GET (req, res) {
     const queryParams = Object.fromEntries(req.nextUrl.searchParams);
@@ -9,9 +9,6 @@ export async function GET (req, res) {
       console.log('Error:', error);
       return NextResponse.redirect(new URL('/login', req.url));
     }
-
-    console.log('State:', state);
-    console.log('Code:', code);
 
     // Basic HTTP Authorization Header 
     const encodedHeader = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString("base64");
@@ -28,8 +25,6 @@ export async function GET (req, res) {
     });
     
     const tokenBody = await responseToken.json();
-    console.log(tokenBody.access_token);
-    console.log(tokenBody.refresh_token);
 
     // Get user information from Reddit
     const responseUser = await fetch(`https://oauth.reddit.com/api/v1/me`, {
@@ -44,17 +39,13 @@ export async function GET (req, res) {
     }
 
     const userBody = await responseUser.json();
-
-    const user = {
-      id: userBody.id,
-      name: userBody.name,
-      oauth_client_id: userBody.oauth_client_id,
+  
+    const userTokens = {
       accessToken: tokenBody.access_token,
       refreshToken: tokenBody.refresh_token
     }
 
-    await checkUserExists(user);
-
+    await checkUserExists(userBody.name, userTokens);
 
     return NextResponse.redirect(new URL('/subreddits', req.url));
 }

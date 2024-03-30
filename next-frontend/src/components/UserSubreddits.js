@@ -4,18 +4,18 @@ import { useState, useEffect } from 'react'
 const UserSubreddits = () => {
     const [subreddits, setSubreddits] = useState([])
 
-    useEffect(() => {
-        const fetchSubreddits = async () => {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_GO_ENDPOINT}/subreddits`);
-                const res = await response.json();
-                setSubreddits(res.data.children);
-            } catch (error) {
-                console.error("Failed to fetch subreddits:", error);
-            }
-        };
-        fetchSubreddits();
-    }, []); 
+    // useEffect(() => {
+    //     const fetchSubreddits = async () => {
+    //         try {
+    //             const response = await fetch(`${process.env.REACT_APP_GO_ENDPOINT}/subreddits`);
+    //             const res = await response.json();
+    //             setSubreddits(res.data.children);
+    //         } catch (error) {
+    //             console.error("Failed to fetch subreddits:", error);
+    //         }
+    //     };
+    //     fetchSubreddits();
+    // }, []); 
     
     return (
     <div className='w-full overflow-scroll'>
