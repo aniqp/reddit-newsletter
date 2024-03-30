@@ -1,0 +1,18 @@
+package main
+
+import (
+	reddit_handler "reddit-newsletter/apis"
+
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExODQ1ODA5LjUyMzgwNywiaWF0IjoxNzExNzU5NDA5LjUyMzgwNywianRpIjoickNiSHIzVWllNFZQM2ExZ2N6Qm56aW5YT0FaWUJBIiwiY2lkIjoiQlNydy1Hc19aMUlVVnNpOVFkWVVKZyIsImxpZCI6InQyX3ZueGI5OGRudyIsImFpZCI6InQyX3ZueGI5OGRudyIsImxjYSI6MTcwOTc4NjEyODgzMiwic2NwIjoiZUp5S1Z0SlNpZ1VFQUFEX193TnpBU2MiLCJmbG8iOjl9.f2CRCgh1k9yXXeXE5AklALuv9FQM3NVSXkRirICe7o_9-fxPENZ0oEmhkaBz49S2RdGq0A-YmNd4EgTExUBJ4P8UpUsLfZmgLBE7_EVxCYEojNGyu1dG6H2EkjMZiAc6TxYEGb-2jJ4QG43nFQMwX220xf4pk3E5AVGCnv3IUPJ_pBvlF_P9G2u9lr3my6CJ4YeLTfTT-922mBbnB6EkRHEKnXt-xhrUT-b4XExGcatqeMYJDlxXiRh_6kyX9D8QXT-h7cjR26Dh9825XztC8uJ8WmIxbPtCeaq__0QPqRJnWKAqKGbGasqNG2kLPlD91ARYGRORo2q1ILrILLr-7Q"
+	rc := reddit_handler.NewRedditClient(accessToken)
+	r := gin.Default()
+
+	r.GET("/subreddits", rc.GetSubredditsHandler)
+	r.GET("/hotpostsandcomments", rc.GetHotPostsAndCommentsHandler)
+
+	r.Run(":8080")
+}
