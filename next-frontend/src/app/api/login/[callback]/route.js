@@ -47,7 +47,11 @@ export async function GET (req, res) {
 
     const user = {"reddit": userBody.name, "email": null}
 
-    await checkUserExists(userBody.name, userTokens);
+    var userExists = await checkUserExists(userBody.name, userTokens);
+
+    if (userExists == false){
+      
+    }
 
     return NextResponse.redirect(new URL(`/subreddits/${userBody.name}`, req.url));
   }

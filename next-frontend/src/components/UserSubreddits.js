@@ -5,6 +5,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSubreddits } from '@/redux/slice'
 import { useRouter } from 'next/navigation';
 import { getUserSubreddits } from '@/db';
+import { updateStarred } from '@/db';
+import SignUpModal from './SignUpModal';
 
 const UserSubreddits = ({ userId }) => {
     const router = useRouter()
@@ -26,6 +28,7 @@ const UserSubreddits = ({ userId }) => {
 
     return (
     <div className='w-full overflow-scroll'>
+        {user.email == null ? <SignUpModal open={true} userId={userId}/> : <SignUpModal open={false} userId={userId}/>}
         <div className='text-3xl font-bold mb-5'>Subscribed Subreddits</div>
         <div className='flex'>
             <div className='w-8/12'>
@@ -46,6 +49,11 @@ const UserSubreddits = ({ userId }) => {
 }
 
 const SubredditCard = ({ subreddit, user }) => {
+    const [checked, setChecked] = useState(subreddit.starred)
+    const handleCheckmark = () => {
+        updateStarred(user.reddit, subreddit.id, !checked)
+        setChecked(!checked)
+    }
     return (
         <div className={`subreddit-card`} onClick={console.log()}>
             <div>
@@ -58,9 +66,9 @@ const SubredditCard = ({ subreddit, user }) => {
                 <label className='flex items-center cursor-pointer'>
                     <input
                         type="checkbox"
+                        onChange={handleCheckmark}
                         disabled={true ? user.email === null : false}
-                        checked={true ? (user.email !== null) : false}
-                        // onChange={(e) => onSubscriptionChange(e.target.checked, subreddit)}
+                        checked={checked}
                         className='mr-2'
                     />
                 </label>

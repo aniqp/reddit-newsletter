@@ -1,3 +1,4 @@
+import { Truculenta } from 'next/font/google';
 import { db } from './firebaseConfig';
 import { query, collection, setDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 
@@ -11,10 +12,11 @@ export async function checkUserExists(userId, userData) {
             accessToken: userData.accessToken,
             refreshToken: userData.refreshToken
           });
+          return true;
     } else {
         addNewUser(userId, userData);
+        return false;
     }
-    return getUserSubreddits(userId);
 }
 
 export async function addNewUser(userId, userData) {
@@ -32,11 +34,33 @@ export async function addNewUser(userId, userData) {
         console.log(subreddits)
         subreddits.forEach(async (subreddit) => {
             const subredditRef = doc(db, `users/${userId}/subreddits`, subreddit.display_name);
-            await setDoc(subredditRef, { description: subreddit.description });
+            await setDoc(subredditRef, { description: subreddit.description, starred: false });
         });
         console.log("User written with ID: ", userRef.id);
     } catch (e) {
         console.error("Error adding user: ", e);
+    }
+}
+
+export async function addUserEmail(userId, email) {
+    const userRef = doc(db, 'users', userId);
+    const userSnapshot = await getDoc(userRef);
+
+    if (userSnapshot.exists()) {
+        await updateDoc(userRef, {
+            email: email,
+          });
+    }
+}
+
+export async function updateStarred(userId, subredditId, value) {
+    const subredditsRef = doc(db, `users/${userId}/subreddits`, subredditId);
+    const userSnapshot = await getDoc(subredditsRef);
+
+    if (userSnapshot.exists()) {
+        await updateDoc(subredditsRef, {
+            starred: value,
+          });
     }
 }
 

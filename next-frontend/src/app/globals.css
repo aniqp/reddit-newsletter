@@ -154,7 +154,7 @@ input.search {
   border-radius: 20px;
 }
 
-/* Account Settings Component */
+
 .account-card{
   padding: 1.25rem;
   border: 1px solid var(--light-grey);
@@ -174,3 +174,26 @@ button.account{
   cursor: pointer;
 }
 
+
+/* Modal Component */
+.modal_styles{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform:translate(-50%, -50%);
+  background-color: #fff;
+  z-index: 1000;
+  width: 30vw;
+  border-radius: 8px;
+}
+
+.overlay_styles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  background-color: rgba(0,0,0,.4);
+  z-index:1000;
+}

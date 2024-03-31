@@ -1,4 +1,6 @@
 import React from 'react'
+import { useSelector, useDispatch } from 'react-redux';
+
 
 export default function AccountSettings() {
   return (
@@ -15,6 +17,7 @@ export default function AccountSettings() {
 }
 
 const Profile = () => {
+  const user = useSelector((state) => state.user.account)
     return(
         <div className='account-card shadow-md mb-10'>
           <div className='text-lg font-semibold account-card-header pb-2 mb-3'>
@@ -23,7 +26,7 @@ const Profile = () => {
           <div className='flex justify-between'>
             <div className='flex flex-col'>
               <div className='mb-1 opacity-30'>
-                redditsummarydummy
+                {user.reddit}
               </div>
             </div>
           </div>
@@ -33,7 +36,7 @@ const Profile = () => {
           <div className='flex justify-between'>
             <div className='flex flex-col'>
               <div className='mb-1 opacity-30'>
-                null
+                {user.email}
               </div>
             </div>
           </div>
