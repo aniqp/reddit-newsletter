@@ -1,10 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  account: {
-    reddit: null,
-    email: null,
-  },
+  id: '',
+  email: '',
   subreddits: [],
 }
 
@@ -12,8 +10,11 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.account = action.payload
+    setUserId: (state, action) => {
+      state.id = action.payload
+    },
+    setEmail: (state, action) => {
+      state.email = action.payload
     },
     setSubreddits: (state, action) => {
       state.subreddits = action.payload
@@ -21,6 +22,6 @@ export const userSlice = createSlice({
   },
 })
 
-export const { setUser, setSubreddits } = userSlice.actions
+export const { setUserId, setEmail, setSubreddits } = userSlice.actions
 
 export default userSlice.reducer

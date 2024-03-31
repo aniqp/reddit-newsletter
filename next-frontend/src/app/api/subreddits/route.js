@@ -1,9 +1,8 @@
-import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function GET (req, res) {
-    const headersList = headers()
-    const accessToken = headersList.get('access-token')
+    const queryParams = Object.fromEntries(req.nextUrl.searchParams);
+    const { accessToken } = queryParams;
 
     // Get list of user's subreddit from Reddit
     const userSubreddits = await fetch("https://oauth.reddit.com/subreddits/mine/subscriber", {
@@ -20,5 +19,5 @@ export async function GET (req, res) {
         description: item.data.public_description
     }));
 
-    return NextResponse.json(subreddits);
+    return NextResponse.json(subreddits, {status: 200});
 }

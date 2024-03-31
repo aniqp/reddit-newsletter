@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server'
-import { checkUserExists } from '@/db'
 
 export async function GET (req, res) {
     const queryParams = Object.fromEntries(req.nextUrl.searchParams);
-    const { state, code, error } = queryParams;
-
-    if (error || state !== process.env.STATE) {
-      console.log('Error:', error);
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
+    const { code } = queryParams;
 
     // Basic HTTP Authorization Header 
     const encodedHeader = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString("base64");
@@ -39,19 +33,14 @@ export async function GET (req, res) {
     }
 
     const userBody = await responseUser.json();
-  
-    const userTokens = {
-      accessToken: tokenBody.access_token,
-      refreshToken: tokenBody.refresh_token
+    
+    const user = {
+      id: userBody.name,
+      tokens: {
+        accessToken: tokenBody.access_token,
+        refreshToken: tokenBody.refresh_token
+      }
     }
 
-    const user = {"reddit": userBody.name, "email": null}
-
-    var userExists = await checkUserExists(userBody.name, userTokens);
-
-    if (userExists == false){
-      
-    }
-
-    return NextResponse.redirect(new URL(`/subreddits/${userBody.name}`, req.url));
+    return NextResponse.json(user, {status: 200});
   }
