@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
+	"time"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -193,9 +194,34 @@ func GetComments(accessToken string, subreddit string, post_id string) ([]byte, 
 }
 
 func main() {
-	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExOTA5MjMyLjg2NTM0MywiaWF0IjoxNzExODIyODMyLjg2NTM0MywianRpIjoiZWQtX0JabUN5TjFkZmpkY3hRZ2lvcDk3ajZvSjdBIiwiY2lkIjoicUk0bVgwQUctRGNaTFBEeWRZMHJtZyIsImxpZCI6InQyX2o0YnEwc3p4IiwiYWlkIjoidDJfajRicTBzengiLCJsY2EiOjE2NDMzOTc5MjcwMDAsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.DYZw4Thr2aPVQ9I5IwMTDBgaar0_IfRrR6FXL2sL-ec_aKmdJs670NqUmyJOvsaDa7ubM22kR0TwW0sowkCNQtzZGbJxcn-7SI9XSawA0zA4DbQRXxJTCC_q5ZCVy-P-3xlhw2ElPWrj53hJDZ6E7QvwnmAcjfCBDWd_XbS7GXiQPK6j_ijBbeF2_EQK4LPlHK0QhE_SrjYHmQGYRmALrO6rVcPACIQ54LX9NKdCfx-9mUfnrB4nQKD3-DDSuPPg8ZD8MhUv_Cs8qSn_jBVkd89PanXbWzKv6kNEZFXEzkZ0iFiC7AClNUv1Cl0Z9wK1TaGEa8wLacBQJxJqtg1Vmg"
+	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExMzI5MDU3Ljg2MzYyNCwiaWF0IjoxNzExMjQyNjU3Ljg2MzYyNCwianRpIjoiaFVSRFdJLUlpR2ZLSExFSTM4aS1ubm9xazdlclRRIiwiY2lkIjoicUk0bVgwQUctRGNaTFBEeWRZMHJtZyIsImxpZCI6InQyX2o0YnEwc3p4IiwiYWlkIjoidDJfajRicTBzengiLCJsY2EiOjE2NDMzOTc5MjcwMDAsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.Snixsf61qG82G0Ykv6V8S1jcu_c_dQYkYtHXfOW438KA0YFOKY5ez8UIrx_7mB7lpvjxBCkYFX53_iKRlo9M4WtRzWhX93d-zXosOJiknH_PSnd3Eq-7D2MfNU-iax_aARyVGF3HeJJPzR3QwvayL5j74pZZ3dj4eW-s5JNGyI90P4X4ZY9aU1yGPP7ytHZrz6bJXdwmmYJQmIkt9IyWFcbvA7tNC8KiD02ZJN65ck3o3QawGkr7_nwpLsmslvd9nM9OyNel25OrKs5J8d9p4_sKZdN2Gv3Y_nAIyGszv_1Wz7Y5KvoBFo2Zys1zW9A17wq0GvKVhphUo8MTecFG9g"
+
+	body, err := GetSubreddits(accessToken)
+
+	var subredditResponse SubredditResponse
+	err = json.Unmarshal(body, &subredditResponse)
+	if err != nil {
+		fmt.Println("Error unmarshaling JSON:", err)
+		return
+	}
 
 	r := gin.Default()
+
+	// Configure CORS middleware options
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Or the specific origins you want to allow
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:3000" // Use this to allow specific origins
+		},
+		MaxAge: 12 * time.Hour,
+	}
+
+	// Apply the middleware to the router (all routes)
+	r.Use(cors.New(config))
 
 	r.GET("/subreddits", func(c *gin.Context) {
 		body, err := GetSubreddits(accessToken)
@@ -227,27 +253,24 @@ func main() {
 
 		var wg sync.WaitGroup
 		for _, child := range SubredditHotPosts.Data.Children {
-			wg.Add(1)
-			child := child
-			go func() {
-				defer wg.Done() // Decrement the WaitGroup counter when the goroutine completes
-				hotPost := HotPostWithComments{
-					Title:    child.Data.Title,
-					SelfText: child.Data.Selftext,
-				}
-				body, _ := GetComments(accessToken, subreddit, child.Data.Id)
 
-				var subredditComments []SubredditComment
-				err := json.Unmarshal(body, &subredditComments)
-				if err != nil {
-					fmt.Println("Error unmarshalling comments:", err)
-					return
-				}
+			fmt.Println("Selftext:", child.Data.Selftext)
+			hotPost := HotPostWithComments{
+				Title:    child.Data.Title,
+				SelfText: child.Data.Selftext,
+			}
+			body, err := GetComments(accessToken, subreddit, child.Data.Id)
 
-				hotPost.Comments = subredditComments[1]
-				hotPostsWithComments = append(hotPostsWithComments, hotPost)
-				time.Sleep(1 * time.Second)
-			}()
+			var subredditComments []SubredditComment
+			err = json.Unmarshal(body, &subredditComments)
+			if err != nil {
+				fmt.Println("Error unmarshalling comments:", err)
+				// Handle the error as needed, maybe skip this post or return an error response
+				continue
+			}
+
+			hotPost.Comments = subredditComments[1]
+			hotPostsWithComments = append(hotPostsWithComments, hotPost)
 		}
 		wg.Wait()
 
