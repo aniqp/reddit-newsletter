@@ -17,7 +17,7 @@ export async function GET (req, res) {
     
     const subreddits = body.data.children.map(item => ({
         display_name: item.data.display_name,
-        description: item.data.description
+        description: item.data.public_description
     }));
 
     return NextResponse.json(subreddits);

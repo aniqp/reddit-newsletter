@@ -7,7 +7,6 @@ export default function AccountSettings() {
         <div className='flex'>
             <div className='w-full'>
               <Profile />
-              <LinkedAccounts />
               <DeleteAccount />
             </div>
         </div>
@@ -19,35 +18,27 @@ const Profile = () => {
     return(
         <div className='account-card shadow-md mb-10'>
           <div className='text-lg font-semibold account-card-header pb-2 mb-3'>
-            Personal Information
+            Reddit Account
           </div>
           <div className='flex justify-between'>
             <div className='flex flex-col'>
-              <div className='mb-1'>
-                John Doe
-              </div>
-              <div className='opacity-30'>
-              johndoe@gmail.com
+              <div className='mb-1 opacity-30'>
+                redditsummarydummy
               </div>
             </div>
-            <div className='flex items-center'>
-              <button className='account mr-3'>Edit Profile</button>
-              <button className='account'>Change Password</button>
+          </div>
+          <div className='text-lg mt-8 font-semibold account-card-header pb-2 mb-3'>
+            Email
+          </div>
+          <div className='flex justify-between'>
+            <div className='flex flex-col'>
+              <div className='mb-1 opacity-30'>
+                null
+              </div>
             </div>
           </div>
         </div>
     )
-}
-
-
-const LinkedAccounts = () => {
-  return(
-      <div className='account-card shadow-md mb-10'>
-        <div className='text-lg font-semibold account-card-header pb-2 mb-3'>
-         Linked Accounts
-        </div>
-      </div>
-  )
 }
 
 const DeleteAccount = () => {
@@ -57,12 +48,13 @@ const DeleteAccount = () => {
           Delete Account
         </div>
         <div className='flex justify-between'>
-            <div className='w-9/12 opacity-75'>
+            <div className='opacity-75 text-sm'>
             You are about to permanently delete your account. This action cannot be undone. Upon confirmation, all of your account data, including your profile, preferences, and associated content, will be irreversibly removed.
             </div>
-            <div>
-              <button className='account'>Delete Account</button>
-            </div>
+            
+        </div>
+        <div className='w-full mt-5'>
+            <button className='delete-account'>Delete Account</button>
         </div>
       </div>
   )

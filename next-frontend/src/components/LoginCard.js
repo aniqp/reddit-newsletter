@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import Image from "next/image";
 
@@ -13,7 +14,7 @@ const LoginCard = () => {
             <button onClick={handleLogin} className="btn email-login-btn">
                 <div className="flex items-center">
                 <Image className="mr-3" src="reddit-logo2.svg" width={35} height={35} />
-                <span className="">Login with Reddit</span>
+                <span>Login with Reddit</span>
                 </div>
             </button>
         </div>

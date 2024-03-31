@@ -1,5 +1,5 @@
 import { db } from './firebaseConfig';
-import { setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
+import { query, collection, setDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 
 export async function checkUserExists(userId, userData) {
     // Documentation: https://modularfirebase.web.app/common-use-cases/firestore/#get-a-document
@@ -28,6 +28,7 @@ export async function addNewUser(userId, userData) {
             },
         });
         const subreddits = await response.json();
+
         console.log(subreddits)
         subreddits.forEach(async (subreddit) => {
             const subredditRef = doc(db, `users/${userId}/subreddits`, subreddit.display_name);
@@ -41,16 +42,17 @@ export async function addNewUser(userId, userData) {
 
 export async function getUserSubreddits(userId) {
     try {
+        console.log(userId)
         const subredditsRef = collection(db, `users/${userId}/subreddits`);
         const q = query(subredditsRef);
-        const querySnapshot = await getDoc(q);
+        const querySnapshot = await getDocs(q);
   
         const subreddits = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
   
-        console.log(subreddits);
+        // console.log(subreddits);
         return subreddits;
     } catch (e) {
         console.error("Error fetching user subreddits: ", e);

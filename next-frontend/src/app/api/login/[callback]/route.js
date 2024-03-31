@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { checkUserExists } from '@/db/utils'
+import { checkUserExists } from '@/db'
 
 export async function GET (req, res) {
     const queryParams = Object.fromEntries(req.nextUrl.searchParams);
@@ -45,7 +45,9 @@ export async function GET (req, res) {
       refreshToken: tokenBody.refresh_token
     }
 
+    const user = {"reddit": userBody.name, "email": null}
+
     await checkUserExists(userBody.name, userTokens);
 
-    return NextResponse.redirect(new URL('/subreddits', req.url));
-}
+    return NextResponse.redirect(new URL(`/subreddits/${userBody.name}`, req.url));
+  }
