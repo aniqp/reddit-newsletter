@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	reddit_models "reddit-newsletter/pkg/models"
-
+	"strconv"
+	"time"
+	"sync"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,19 +42,26 @@ func getSubreddits(accessToken string, client *http.Client) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetSubreddits. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return getSubreddits(accessToken, client)
+    }
+
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading response: %v", err)
+	if resp.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading response:", err)
+		}
+		return body, nil
 	}
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
-
-	return body, nil
+	body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetSubreddits failed with status: %s", resp.Status)
 }
 
 func getHotPosts(accessToken string, subreddit string, client *http.Client) ([]byte, error) {
@@ -72,76 +81,93 @@ func getHotPosts(accessToken string, subreddit string, client *http.Client) ([]b
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetHotPosts. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return getHotPosts(accessToken, subreddit, client)
+    }
+
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading response:", err)
+	if resp.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading response:", err)
+		}
+		return body, nil
 	}
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
-
-	return body, nil
+	body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetHotPosts failed with status: %s", resp.Status)
 }
 
 func getComments(accessToken string, subreddit string, post_id string, client *http.Client) ([]byte, error) {
-	// Create a new GET request
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s/top?sort=hot&t=day&limit=20&depth=3&truncate=25", subreddit, post_id), nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %v", err)
-	}
+	url := fmt.Sprintf("https://oauth.reddit.com/%s/comments/%s/top?sort=hot&t=day&limit=10&depth=1", subreddit, post_id)
 
-	// Add authorization header with OAuth2 access token
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        return nil, fmt.Errorf("error creating request: %v", err)
+    }
+    req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	// Send the request
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Error sending request:", err)
-	}
-	defer resp.Body.Close()
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("error sending request: %v", err)
+    }
+    defer resp.Body.Close()
 
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading response:", err)
-	}
+    if resp.StatusCode == http.StatusTooManyRequests {
+        fmt.Println("Rate limit hit for GetComments. Waiting before retrying...")
+        resetTime := resp.Header.Get("Retry-After")
+        waitTime, _ := strconv.Atoi(resetTime)
+        time.Sleep(time.Duration(waitTime) * time.Second)
+        return getComments(accessToken, subreddit, post_id, client)
+    }
 
-	// Check the status code
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error response:", resp.Status)
-		fmt.Println("Response body:", string(body))
-	}
+    if resp.StatusCode == http.StatusOK {
+        body, err := io.ReadAll(resp.Body)
+        if err != nil {
+            return nil, fmt.Errorf("error reading response: %v", err)
+        }
+		fmt.Println("Got comments for 1 post")
+        return body, nil
+    }
 
-	return body, nil
+    body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Error response: %s\nResponse body: %s\n", resp.Status, string(body))
+    return nil, fmt.Errorf("API request GetComments failed with status: %s", resp.Status)
 
 }
 
 func processComments(SubredditHotPosts reddit_models.SubredditHotPosts, rc RedditClient, subreddit string) []reddit_models.HotPostWithComments {
 	var hotPostsWithComments []reddit_models.HotPostWithComments
+	var wg sync.WaitGroup
+		for _, child := range SubredditHotPosts.Data.Children {
+			wg.Add(1)
+			child := child
+			go func() {
+				defer wg.Done() // Decrement the WaitGroup counter when the goroutine completes
+				hotPost := reddit_models.HotPostWithComments{
+					Title:    child.Data.Title,
+					SelfText: child.Data.Selftext,
+				}
+				body, _ := getComments(rc.accessToken, subreddit, child.Data.Id, rc.client)
 
-	for _, child := range SubredditHotPosts.Data.Children {
-		hotPost := reddit_models.HotPostWithComments{
-			Title:    child.Data.Title,
-			SelfText: child.Data.Selftext,
+				var subredditComments []reddit_models.SubredditComment
+				err := json.Unmarshal(body, &subredditComments)
+				if err != nil {
+					fmt.Println("Error unmarshalling comments:", err)
+					return
+				}
+
+				hotPost.Comments = subredditComments[1]
+				hotPostsWithComments = append(hotPostsWithComments, hotPost)
+				time.Sleep(1 * time.Second)
+			}()
 		}
-		body, err := getComments(rc.accessToken, subreddit, child.Data.Id, rc.client)
-
-		var subredditComments []reddit_models.SubredditComment
-		err = json.Unmarshal(body, &subredditComments)
-		if err != nil {
-			fmt.Println("Error unmarshalling comments:", err)
-			// Handle the error as needed, maybe skip this post or return an error response
-			continue
-		}
-
-		hotPost.Comments = subredditComments[1]
-		hotPostsWithComments = append(hotPostsWithComments, hotPost)
-
-	}
+		wg.Wait()
 	return hotPostsWithComments
 }
 
