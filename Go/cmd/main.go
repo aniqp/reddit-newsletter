@@ -1,18 +1,73 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
 	reddit_handler "reddit-newsletter/apis"
 
-	"github.com/gin-gonic/gin"
+	firebase "firebase.google.com/go"
+	"github.com/joho/godotenv"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 func main() {
-	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExOTQ5NjA0LjM2MjgzNCwiaWF0IjoxNzExODYzMjA0LjM2MjgzNCwianRpIjoiY0RFalFkX1hqXzQyOG1Ja0xaT2ZXQUtxaWljVThnIiwiY2lkIjoicUk0bVgwQUctRGNaTFBEeWRZMHJtZyIsImxpZCI6InQyX2o0YnEwc3p4IiwiYWlkIjoidDJfajRicTBzengiLCJsY2EiOjE2NDMzOTc5MjcwMDAsInNjcCI6ImVKeUtWdEpTaWdVRUFBRF9fd056QVNjIiwiZmxvIjo5fQ.DhbwopzsUAycGiBDFxFbWVewUw5Z-qmca1oFC-IJhMq7uRaBzakHWvf0jEGKjR1_zJZXir5hj65asccu8yXALKK1YIGVO5r-3UPHnl6_ZxybRW4hKRU6flpc-GGITLxuICAlIe5DnFkhfQ2OVXGyzMrW_KK7SKSyQe5fPrlqmNhxt4PAPujBDKzvPekKTPxvN_bk1d1JRW-MVrYm6StP3q21rvmvYy_rK6QjdOeasQ4qYqUyb2oCSrmeLnhBO6l2Ck4tMkQTDDS4NxiU-MGyVv1vNA1Oqp_3MwUDKayppnTVys7APqy6BnJ8z8FzHhrUPEB_FM5TqmOjYCjS-6kL4A"
+	var subreddits []string
+	ctx := context.Background()
+	sa := option.WithCredentialsFile("../../reddit-newsletter-firebase-key.json")
+	app, err := firebase.NewApp(ctx, nil, sa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	iter := client.Collection("subreddits").Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+		name, ok := doc.Data()["name"].(string)
+		if !ok {
+			log.Fatalf("Failed to convert 'name' to string")
+		}
+		subreddits = append(subreddits, name)
+	}
+
+	fmt.Println("Subreddits: %", subreddits)
+	defer client.Close()
+
+	if err := godotenv.Load("../../.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	// Access the environment variable
+	accessToken := os.Getenv("REDDIT_ACCESS_TOKEN")
 	rc := reddit_handler.NewRedditClient(accessToken)
-	r := gin.Default()
 
-	r.GET("/subreddits", rc.GetSubredditsHandler)
-	r.GET("/hotpostsandcomments", rc.GetHotPostsAndCommentsHandler)
+	for _, subreddit := range subreddits {
+		hotPosts, err := rc.GetHotPostsAndCommentsResponse(subreddit)
+		if err != nil {
+			fmt.Println("Error getting data:", err)
+			return
+		}
 
-	r.Run(":8080")
+		filename := "../gpt-summarizer/data" + subreddit[2:] + ".json"
+		err = reddit_handler.SaveJSONToFile(hotPosts, filename)
+		if err != nil {
+			fmt.Println("Error saving JSON to file:", err)
+			return
+		}
+
+		fmt.Println("JSON data saved to", filename)
+	}
 }

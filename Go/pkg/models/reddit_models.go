@@ -49,3 +49,8 @@ type HotPostWithComments struct {
 	SelfText string           `json:"selftext"`
 	Comments SubredditComment `json:"comments"`
 }
+
+type SubredditHotPostsWithComments struct {
+	SubredditName string                `json:"subredditname"`
+	HotPosts      []HotPostWithComments `json:"hotposts"`
+}
