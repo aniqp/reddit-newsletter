@@ -1,12 +1,24 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateStarred } from '@/db';
 
 const UserSubreddits = () => {
+    const router = useRouter()
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user)
+
+    useEffect(() => {
+        if (!user.id) {
+            router.push('/login')
+        }
+    }, [user.id])
+
+    if (!user.id) {
+        return null
+    }
 
     return (
     <div className='w-full overflow-scroll'>
@@ -35,25 +47,28 @@ const SubredditCard = ({ subreddit, user }) => {
         setChecked(!checked)
     }
     return (
-        <div className={`subreddit-card`} onClick={console.log()}>
+    <a onClick={handleCheckmark}>
+        <div className={`subreddit-card shadow-md ${checked ? '' : ''}`} onClick={console.log()}>
             <div>
                 <div className='font-bold'>{subreddit.id}</div>
-                <div>
+                <div className='opacity-40 mr-10'>
                     {subreddit.description}
                 </div>
             </div>
-            <div>
-                <label className='flex items-center cursor-pointer'>
-                    <input
-                        type="checkbox"
-                        onChange={handleCheckmark}
-                        disabled={true ? user.email === null : false}
-                        checked={checked}
+            <div className='flex items-center'>
+                <label className='container flex items-center cursor-pointer'>
+                    <input 
                         className='mr-2'
-                    />
+                        checked={checked} 
+                        type="checkbox"
+                        // onChange={handleCheckmark}
+                        disabled={true ? user.email === null : false} 
+                        />
+                    <div class="checkmark"></div>
                 </label>
             </div>
         </div>
+    </a>
     )
 }
 

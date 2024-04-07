@@ -22,14 +22,23 @@ const EmailPage = () => {
     router.push('/subreddits');
   }
 
+  const handleCancel = () => {
+
+    router.push('/login');
+  }
+
+  if (!user.id) {
+    router.push('/login');
+  }
+
   return (
-    <div className="w-full h-screen flex justify-center items-center">
-    <div className="w-2/5 login-card">
-        <div className="text-3xl font-semibold text-center mb-5">
+    <div className="login-background w-full h-screen flex justify-center items-center">
+    <div className="xl:w-2/5 lg:w-2/5 md:w-3/5 w-4/5 login-card">
+        <div className="text-3xl font-bold text-center mb-5">
             Welcome, {user.id}!
         </div>
-        <div className='mb-10 text-sm'>
-          Thank you for signing up. To ensure you receive our daily newsletters, please enter your email address below.
+        <div className='mb-10 text-sm opacity-50'>
+          Thank you for signing up! To receive your daily newsletter, please enter your email address below.
         </div>
         <input
           type="email"
@@ -45,16 +54,19 @@ const EmailPage = () => {
               border: '1px solid #ccc',
           }}
       />
-        <button onClick={handleEmailSubmit} className="btn email-login-btn">
-            <div className="flex items-center">
-              <span>Confirm Email</span>
-            </div>
-        </button>
-        <button className="btn email-login-btn">
-            <div className="flex items-center">
-              <span>Cancel</span>
-            </div>
-        </button>
+      <div className='mt-5 mx-auto flex'>
+          <button onClick={handleCancel} className="w-1/3 btn cancel-btn">
+              <div className="flex items-center">
+                <span>Cancel</span>
+              </div>
+          </button>
+          <button onClick={handleEmailSubmit} className=" ml-5 w-2/3 btn email-login-btn">
+              <div className="flex font-semibold items-center">
+                <span>Confirm Email</span>
+              </div>
+          </button>
+          
+        </div>
     </div>
   </div>
   )

@@ -57,8 +57,8 @@ export default function LoginCallbackPage() {
     }, []);
 
   return (
-    <div className='flex'>
-        Loading...
+    <div className='h-screen flex justify-center items-center'>
+      <div class="loader"></div>
     </div>
   )
 }
