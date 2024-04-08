@@ -1,16 +1,20 @@
 package reddit_handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	reddit_models "reddit-newsletter/pkg/models"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
+
+var ctx = context.Background()
 
 // RedditClient defines a client for interacting with the Reddit API
 type RedditClient struct {
@@ -218,10 +222,39 @@ func (rc *RedditClient) GetHotPostsAndCommentsResponse(subreddit string) (string
 	return string(subredditHotPosts), nil
 }
 
-func SaveJSONToFile(data string, filename string) error {
-	err := os.WriteFile(filename, []byte(data), 0644)
-	if err != nil {
-		return err
+func AddToRedisQueue(hotPostsJSON string, rdb *redis.Client) {
+	if err := rdb.LPush(ctx, "hotPostsQueue", hotPostsJSON).Err(); err != nil {
+		fmt.Println("Error pushing to Redis:", err)
+		return
 	}
-	return nil
+}
+
+// Temporary for debugging, this will be moved to the GPT summarizer
+func ConsumeQueue(rdb *redis.Client) {
+	for {
+		// Using BRPop with a timeout of 0 blocks indefinitely until an item is available
+		result, err := rdb.BRPop(ctx, 0*time.Second, "hotPostsQueue").Result()
+		if err != nil {
+			fmt.Println("Error popping from queue:", err)
+			continue
+		}
+
+		// result[1] contains the popped item (the JSON string)
+		jsonStr := result[1]
+
+		var hotPosts reddit_models.SubredditHotPostsWithComments
+		err = json.Unmarshal([]byte(jsonStr), &hotPosts)
+		if err != nil {
+			fmt.Println("Error unmarshalling JSON:", err)
+			continue
+		}
+
+		// Process the hot posts with comments
+		fmt.Printf("Consumed and processing %d hot posts with comments\n", len(hotPosts.HotPosts))
+		fmt.Printf("subredit: %s\n", hotPosts.SubredditName)
+		// Here you can process the hotPosts as needed
+		for _, post := range hotPosts.HotPosts {
+			fmt.Printf("Post: %s, Comments: %d\n", post.Title, len(post.Comments.Data.Children))
+		}
+	}
 }
