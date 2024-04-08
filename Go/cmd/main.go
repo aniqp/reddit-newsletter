@@ -9,19 +9,19 @@ import (
 	reddit_handler "reddit-newsletter/apis"
 
 	firebase "firebase.google.com/go"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
-	"github.com/go-redis/redis/v8"
 )
 
 func main() {
 	var subreddits []string
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
-        Addr: "localhost:6379", // Use your Redis server address
-        DB:   0,                // Use the default DB
-    })
+		Addr: "localhost:6379", // Use your Redis server address
+		DB:   0,                // Use the default DB
+	})
 	sa := option.WithCredentialsFile("../../reddit-newsletter-firebase-key.json")
 	app, err := firebase.NewApp(ctx, nil, sa)
 	if err != nil {
@@ -68,5 +68,4 @@ func main() {
 
 		reddit_handler.AddToRedisQueue(hotPosts, rdb)
 	}
-	reddit_handler.ConsumeQueue(rdb)
 }

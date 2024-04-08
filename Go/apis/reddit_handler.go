@@ -1,6 +1,7 @@
 package reddit_handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,8 +10,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"context"
-    "github.com/go-redis/redis/v8"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var ctx = context.Background()
@@ -228,34 +229,32 @@ func AddToRedisQueue(hotPostsJSON string, rdb *redis.Client) {
 	}
 }
 
-//Temporary for debugging, this will be moved to the GPT summarizer
+// Temporary for debugging, this will be moved to the GPT summarizer
 func ConsumeQueue(rdb *redis.Client) {
 	for {
-	 // Using BRPop with a timeout of 0 blocks indefinitely until an item is available
-	 result, err := rdb.BRPop(ctx, 0*time.Second, "hotPostsQueue").Result()
-	 if err != nil {
-	  fmt.Println("Error popping from queue:", err)
-	  continue
-	 }
-   
-	 // result[1] contains the popped item (the JSON string)
-	 jsonStr := result[1]
-   
-	 var hotPosts reddit_models.SubredditHotPostsWithComments
-	 err = json.Unmarshal([]byte(jsonStr), &hotPosts)
-	 if err != nil {
-	  fmt.Println("Error unmarshalling JSON:", err)
-	  continue
-	 }
-   
-	 // Process the hot posts with comments
-	 fmt.Printf("Consumed and processing %d hot posts with comments\n", len(hotPosts.HotPosts))
-	 fmt.Printf("subredit: %s\n", hotPosts.SubredditName)
-	 // Here you can process the hotPosts as needed
-	 for _, post := range hotPosts.HotPosts {
-			   fmt.Printf("Post: %s, Comments: %d\n", post.Title, len(post.Comments.Data.Children))
-		   }
-	}
-   }
-   
+		// Using BRPop with a timeout of 0 blocks indefinitely until an item is available
+		result, err := rdb.BRPop(ctx, 0*time.Second, "hotPostsQueue").Result()
+		if err != nil {
+			fmt.Println("Error popping from queue:", err)
+			continue
+		}
 
+		// result[1] contains the popped item (the JSON string)
+		jsonStr := result[1]
+
+		var hotPosts reddit_models.SubredditHotPostsWithComments
+		err = json.Unmarshal([]byte(jsonStr), &hotPosts)
+		if err != nil {
+			fmt.Println("Error unmarshalling JSON:", err)
+			continue
+		}
+
+		// Process the hot posts with comments
+		fmt.Printf("Consumed and processing %d hot posts with comments\n", len(hotPosts.HotPosts))
+		fmt.Printf("subredit: %s\n", hotPosts.SubredditName)
+		// Here you can process the hotPosts as needed
+		for _, post := range hotPosts.HotPosts {
+			fmt.Printf("Post: %s, Comments: %d\n", post.Title, len(post.Comments.Data.Children))
+		}
+	}
+}
