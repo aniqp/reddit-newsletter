@@ -1,18 +1,71 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
 	reddit_handler "reddit-newsletter/apis"
 
-	"github.com/gin-gonic/gin"
+	firebase "firebase.google.com/go"
+	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 func main() {
-	accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzExODQ1ODA5LjUyMzgwNywiaWF0IjoxNzExNzU5NDA5LjUyMzgwNywianRpIjoickNiSHIzVWllNFZQM2ExZ2N6Qm56aW5YT0FaWUJBIiwiY2lkIjoiQlNydy1Hc19aMUlVVnNpOVFkWVVKZyIsImxpZCI6InQyX3ZueGI5OGRudyIsImFpZCI6InQyX3ZueGI5OGRudyIsImxjYSI6MTcwOTc4NjEyODgzMiwic2NwIjoiZUp5S1Z0SlNpZ1VFQUFEX193TnpBU2MiLCJmbG8iOjl9.f2CRCgh1k9yXXeXE5AklALuv9FQM3NVSXkRirICe7o_9-fxPENZ0oEmhkaBz49S2RdGq0A-YmNd4EgTExUBJ4P8UpUsLfZmgLBE7_EVxCYEojNGyu1dG6H2EkjMZiAc6TxYEGb-2jJ4QG43nFQMwX220xf4pk3E5AVGCnv3IUPJ_pBvlF_P9G2u9lr3my6CJ4YeLTfTT-922mBbnB6EkRHEKnXt-xhrUT-b4XExGcatqeMYJDlxXiRh_6kyX9D8QXT-h7cjR26Dh9825XztC8uJ8WmIxbPtCeaq__0QPqRJnWKAqKGbGasqNG2kLPlD91ARYGRORo2q1ILrILLr-7Q"
+	var subreddits []string
+	ctx := context.Background()
+	rdb := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379", // Use your Redis server address
+		DB:   0,                // Use the default DB
+	})
+	sa := option.WithCredentialsFile("../../reddit-newsletter-firebase-key.json")
+	app, err := firebase.NewApp(ctx, nil, sa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	iter := client.Collection("subreddits").Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+		name, ok := doc.Data()["name"].(string)
+		if !ok {
+			log.Fatalf("Failed to convert 'name' to string")
+		}
+		subreddits = append(subreddits, name)
+	}
+
+	fmt.Println("Subreddits: %", subreddits)
+	defer client.Close()
+
+	if err := godotenv.Load("../../.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	// Access the environment variable
+	accessToken := os.Getenv("REDDIT_ACCESS_TOKEN")
 	rc := reddit_handler.NewRedditClient(accessToken)
-	r := gin.Default()
 
-	r.GET("/subreddits", rc.GetSubredditsHandler)
-	r.GET("/hotpostsandcomments", rc.GetHotPostsAndCommentsHandler)
+	for _, subreddit := range subreddits {
+		hotPosts, err := rc.GetHotPostsAndCommentsResponse(subreddit)
+		if err != nil {
+			fmt.Println("Error getting data:", err)
+			return
+		}
 
-	r.Run(":8080")
+		reddit_handler.AddToRedisQueue(hotPosts, rdb)
+	}
 }
