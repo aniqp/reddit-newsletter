@@ -1,46 +1,38 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { setSubreddits } from '@/redux/slice'
 import { useRouter } from 'next/navigation';
-import { getUserSubreddits } from '@/db';
+import { useSelector, useDispatch } from 'react-redux';
 import { updateStarred } from '@/db';
-import SignUpModal from './SignUpModal';
 
-const UserSubreddits = ({ userId }) => {
+const UserSubreddits = () => {
     const router = useRouter()
     const dispatch = useDispatch()
-    const user = useSelector((state) => state.user.account)
-    const [userSubreddits, setUserSubreddits] = useState([])
+    const user = useSelector((state) => state.user)
 
     useEffect(() => {
-        async function fetchData() {
-            const res = await getUserSubreddits(userId); // Await the asynchronous call
-            console.log(res);
-            if (res) {
-                dispatch(setSubreddits(res));
-                setUserSubreddits(res);
-            }
+        if (!user.id) {
+            router.push('/login')
         }
-        fetchData();
-    }, [userId, dispatch])
+    }, [user.id])
+
+    if (!user.id) {
+        return null
+    }
 
     return (
     <div className='w-full overflow-scroll'>
-        {user.email == null ? <SignUpModal open={true} userId={userId}/> : <SignUpModal open={false} userId={userId}/>}
         <div className='text-3xl font-bold mb-5'>Subscribed Subreddits</div>
         <div className='flex'>
             <div className='w-8/12'>
-                {userSubreddits.map((subreddit, index) => (
-                    <div className={`${index === 0 ? "" : "my-3"} ${index === (userSubreddits.length - 1) ? "mb-10" : ""}`}>
+                {user.subreddits.map((subreddit, index) => (
+                    <div className={`${index === 0 ? "" : "my-3"} ${index === (user.subreddits.length - 1) ? "mb-10" : ""}`}>
                         <SubredditCard subreddit={subreddit} user={user} />
                     </div>
                 ))}
             </div>
             <div className='flex flex-col mx-auto w-64'>
                 <button className='btn mb-5 bg-blue-500 text-white rounded-md'>Update Subreddits</button>
-                <button className='btn mb-5 bg-blue-500 text-white rounded-md'>Save Changes</button>
                 <button className='unsubscribe btn rounded-md'>Unsubscribe from all</button>
             </div>
         </div>
@@ -51,29 +43,32 @@ const UserSubreddits = ({ userId }) => {
 const SubredditCard = ({ subreddit, user }) => {
     const [checked, setChecked] = useState(subreddit.starred)
     const handleCheckmark = () => {
-        updateStarred(user.reddit, subreddit.id, !checked)
+        updateStarred(user.id, subreddit.id, !checked)
         setChecked(!checked)
     }
     return (
-        <div className={`subreddit-card`} onClick={console.log()}>
+    <a onClick={handleCheckmark}>
+        <div className={`subreddit-card shadow-md ${checked ? '' : ''}`} onClick={console.log()}>
             <div>
                 <div className='font-bold'>{subreddit.id}</div>
-                <div>
+                <div className='opacity-40 mr-10'>
                     {subreddit.description}
                 </div>
             </div>
-            <div>
-                <label className='flex items-center cursor-pointer'>
-                    <input
-                        type="checkbox"
-                        onChange={handleCheckmark}
-                        disabled={true ? user.email === null : false}
-                        checked={checked}
+            <div className='flex items-center'>
+                <label className='container flex items-center cursor-pointer'>
+                    <input 
                         className='mr-2'
-                    />
+                        checked={checked} 
+                        type="checkbox"
+                        // onChange={handleCheckmark}
+                        disabled={true ? user.email === null : false} 
+                        />
+                    <div class="checkmark"></div>
                 </label>
             </div>
         </div>
+    </a>
     )
 }
 

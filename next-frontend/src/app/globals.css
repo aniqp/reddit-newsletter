@@ -64,6 +64,9 @@ input {
 
 /********* Login Card Component *********/
 .app-title {
+  display: flex;
+  line-height: 40pt;
+  justify-content: center;
   font-family: 'American Typewriter';
 }
 
@@ -79,8 +82,6 @@ input.login {
 }
 
 .email-login-btn {
-  width: 100%;
-  margin-top: 1rem;
   color: #fff;
   background-color: #ff4500;
 }
@@ -196,4 +197,140 @@ button.account{
   margin: 0;
   background-color: rgba(0,0,0,.4);
   z-index:1000;
+}
+
+/* Loader Component */
+.loader {
+  width: 60px;
+  height: 60px;
+ }
+ 
+ .loader::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border-top: 5px solid #ee4000;
+  border-right: 5px solid transparent;
+  animation: spinner8217 0.8s linear infinite;
+ }
+ 
+ @keyframes spinner8217 {
+  to {
+   transform: rotate(360deg);
+  }
+ }
+
+ .login-background{
+  position: relative;
+  background-image: url('/Untitled.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+ }
+
+ .login-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0); /* Adjust the opacity as needed, here it's 50% */
+  z-index: 0;
+}
+
+/* Ensure content is above the pseudo-element */
+.login-background * {
+  position: relative;
+  z-index: 1;
+}
+
+.starred-card {
+  border: 1.5px solid #ee4000;
+}
+
+/* Create a custom checkbox */
+/* Hide the default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.container {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* Create a custom checkbox */
+.checkmark {
+  position: relative;
+  box-shadow: rgb(255, 84, 0) 0px 0px 0px 2px;
+  background-color: rgba(16, 16, 16, 0.5);
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  margin-top: -1px;
+  transition: all 0.2s ease 0s;
+  cursor: pointer;
+  transform-origin: 0px 10px;
+  border-radius: 4px;
+  margin: -1px 10px 0px 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+.container input:checked ~ .checkmark {
+  box-shadow: rgb(255, 84, 0) 0px 0px 0px 2px;
+  background-color: rgba(245, 24, 24, 0.5);
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  margin-top: -1px;
+  transition: all 0.2s ease 0s;
+  cursor: pointer;
+  transform-origin: 0px 10px;
+  border-radius: 4px;
+  margin: -1px 10px 0px 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 0.45em;
+  top: 0.25em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid white;
+  border-width: 0 0.15em 0.15em 0;
+  transform: rotate(45deg);
+  transition: all 500ms ease-in-out;
+}
+
+.cancel-btn{
+  background-color: #dcdcdc;
+  color: #858585;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }

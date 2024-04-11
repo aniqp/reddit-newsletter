@@ -1,14 +1,22 @@
+"use client"
+
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 
 
 export default function AccountSettings() {
+  const user = useSelector((state) => state.user)
+
+  if (!user.id) {
+    return null
+  }
+
   return (
     <div className='w-10/12 overflow-scroll'>
         <div className='text-3xl font-bold mb-5'>Account Settings</div>
         <div className='flex'>
             <div className='w-full'>
-              <Profile />
+              <Profile user={user} />
               <DeleteAccount />
             </div>
         </div>
@@ -16,8 +24,7 @@ export default function AccountSettings() {
   )
 }
 
-const Profile = () => {
-  const user = useSelector((state) => state.user.account)
+const Profile = ({ user }) => {
     return(
         <div className='account-card shadow-md mb-10'>
           <div className='text-lg font-semibold account-card-header pb-2 mb-3'>
@@ -26,7 +33,7 @@ const Profile = () => {
           <div className='flex justify-between'>
             <div className='flex flex-col'>
               <div className='mb-1 opacity-30'>
-                {user.reddit}
+                {user.id}
               </div>
             </div>
           </div>
