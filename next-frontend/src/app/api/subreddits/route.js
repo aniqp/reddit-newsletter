@@ -15,6 +15,7 @@ export async function GET (req, res) {
     const body = await userSubreddits.json();
     
     const subreddits = body.data.children.map(item => ({
+        display_name_prefixed: item.data.display_name_prefixed,
         display_name: item.data.display_name,
         description: item.data.public_description
     }));
