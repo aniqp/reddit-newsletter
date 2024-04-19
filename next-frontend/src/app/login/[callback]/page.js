@@ -4,8 +4,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
 import { useDispatch } from 'react-redux';
-import { checkUserExists, addUserSubreddits, fetchUserData, getUserSubreddits, addNewUser } from '@/db';
-import { setUserId, setEmail, setSubreddits } from '@/redux/slice';
+import { 
+  checkUserExists, 
+  addUserSubreddits, 
+  getUserSubreddits, 
+  addNewUser,
+  fetchUserEmail } from '@/db';
+import { setUserId, setEmail, setSubreddits, setUserData } from '@/redux/slice';
+
 
 export default function LoginCallbackPage() {
     const dispatch = useDispatch();
@@ -26,10 +32,12 @@ export default function LoginCallbackPage() {
         async function fetchCallbackData() {
           const userApiResponse = await fetch(`/api/login/callback?code=${code}`);
           const user = await userApiResponse.json();
-          dispatch(setUserId(user.id));
+          dispatch(setUserData({id: user.id, accessToken: user.tokens.accessToken}));
 
           const subredditsApiResponse = await fetch(`/api/subreddits?accessToken=${user.tokens.accessToken}`);
           const subreddits = await subredditsApiResponse.json();
+
+          console.log(subreddits)
           
           const userExists = await checkUserExists(user);
           if (!userExists) {
@@ -39,8 +47,9 @@ export default function LoginCallbackPage() {
 
             dispatch(setSubreddits(subredditsFromDb));
             router.push(`/email/${user.id}`)
-          } else {
-            const userFromDb = await fetchUserData(user.id);
+          } else {            
+            const userFromDb = await fetchUserEmail(user.id);
+            await addUserSubreddits(user.id, subreddits);
             const subredditsFromDb = await getUserSubreddits(user.id);
             dispatch(setSubreddits(subredditsFromDb));
             
@@ -54,11 +63,11 @@ export default function LoginCallbackPage() {
           }
         }
         fetchCallbackData();
-    }, []);
+    });
 
   return (
     <div className='h-screen flex justify-center items-center'>
-      <div class="loader"></div>
+      <div className="loader"></div>
     </div>
   )
 }

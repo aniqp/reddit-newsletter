@@ -1,8 +1,9 @@
 "use client"
 
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-
+import { useSelector } from 'react-redux';
+import { deleteUser } from '@/db';
+import { useRouter } from 'next/navigation';
 
 export default function AccountSettings() {
   const user = useSelector((state) => state.user)
@@ -17,7 +18,7 @@ export default function AccountSettings() {
         <div className='flex'>
             <div className='w-full'>
               <Profile user={user} />
-              <DeleteAccount />
+              <DeleteAccount user={user} />
             </div>
         </div>
     </div>
@@ -51,7 +52,14 @@ const Profile = ({ user }) => {
     )
 }
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ user }) => {
+  const router = useRouter();
+
+  const handleDeleteAccount = () => {
+    console.log('Deleting account')
+    deleteUser(user.id)
+    router.push('/login')
+  }
   return(
       <div className='account-card shadow-md'>
         <div className='text-sm text-red-600 font-semibold account-card-header pb-2 mb-3'>
@@ -64,7 +72,7 @@ const DeleteAccount = () => {
             
         </div>
         <div className='w-full mt-5'>
-            <button className='delete-account'>Delete Account</button>
+            <button onClick={handleDeleteAccount} className='delete-account'>Delete Account</button>
         </div>
       </div>
   )

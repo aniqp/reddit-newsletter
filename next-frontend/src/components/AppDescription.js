@@ -11,12 +11,12 @@ const AppDescription = () => {
             Stay in the loop with your subreddits.
         </div>
         <div className='text-md text-center opacity-50'>
-        By connecting your Reddit account, we'll send you a personalized daily email summarizing the hot posts from your selected subreddits. Stay updated with the content that matters most to you, effortlessly!
+        By connecting your Reddit account, we&apos;ll send you a personalized daily email summarizing the hot posts from your selected subreddits. Stay updated with the content that matters most to you, effortlessly!
         </div>
         <div className='flex justify-center'>
           <button onClick={handleLogin} className="mt-10 btn email-login-btn w-3/5">
               <div className="flex items-center">
-              <Image className="mr-3" src="reddit-logo2.svg" width={35} height={35} />
+              <Image className="mr-3" src="reddit-logo2.svg" alt="reddit-logo" width={35} height={35} />
               <span>Continue with Reddit</span>
               </div>
           </button>

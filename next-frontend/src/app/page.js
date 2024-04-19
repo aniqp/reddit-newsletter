@@ -1,6 +1,5 @@
 "use client"
-
-import { useEffect } from "react";
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
@@ -8,6 +7,7 @@ export default function Login() {
 
   useEffect(() => {
     router.push('/login');
-  }, []);
+  });
+  
   return null;
 }
