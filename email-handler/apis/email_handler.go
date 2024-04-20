@@ -5,11 +5,13 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
 	"net/smtp"
 	"os"
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/joho/godotenv"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -201,31 +203,32 @@ func SendEmail(data email_models.EmailData, recipientEmail string) error {
 	if err != nil {
 		return err
 	}
-	// Set up email message
-	email := os.Getenv("EMAIL_SENDER")
-	password := os.Getenv("EMAIL_PASS")
-	smtpServer := "smtp.gmail.com"
-	smtpPort := 587
 
-	fmt.Println("Sending email to", recipientEmail)
-	fmt.Println("From:", email)
+	// Load environment variables
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	// Compose the email
-	msg := "From: " + email + "\n" +
-		"To: " + recipientEmail + "\n" +
-		"Subject: Your Daily Reddit Newsletter\n" +
-		"MIME-version: 1.0;\n" +
-		"Content-Type: text/html; charset=\"UTF-8\";\n\n" +
-		htmlContent
+	// Get email sender and password from environment variables
+	from := os.Getenv("EMAIL_SENDER")
+	pass := os.Getenv("EMAIL_APP_PASSWORD")
+	to := recipientEmail
 
-	// Authenticate and send the email
-	err = smtp.SendMail(smtpServer+":"+fmt.Sprintf("%d", smtpPort),
-		smtp.PlainAuth("", email, password, smtpServer),
-		email,
-		[]string{recipientEmail},
-		[]byte(msg))
+	// Compose the email message with MIME headers
+	body := "From: " + from + "\r\n" +
+		"To: " + to + "\r\n" +
+		"Subject: Your Daily Reddit Newsletter\r\n" +
+		"MIME-Version: 1.0\r\n" +
+		"Content-Type: text/html; charset=UTF-8\r\n" +
+		"\r\n" + htmlContent
+
+	// Send the email using SMTP
+	err = smtp.SendMail("smtp.gmail.com:587",
+		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
+		from, []string{to}, []byte(body))
 
 	if err != nil {
+		log.Printf("smtp error: %s", err)
 		return err
 	}
 
