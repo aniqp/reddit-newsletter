@@ -70,19 +70,20 @@ func getSubreddits(accessToken string, client *http.Client) ([]byte, error) {
 
 func getHotPosts(accessToken string, subreddit string, client *http.Client) ([]byte, error) {
 	// Create a new GET request
+
 	req, err := http.NewRequest("GET", fmt.Sprintf("https://oauth.reddit.com/%s/top?sort=hot&t=day&limit=10", subreddit), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
 
 	// Add authorization header with OAuth2 access token
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-
+	req.Header.Set("Authorization", "bearer "+accessToken)
 	// Send the request
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("Error sending request:", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusTooManyRequests {
