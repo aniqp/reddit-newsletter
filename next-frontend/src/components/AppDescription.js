@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 const AppDescription = () => {
   const handleLogin = async () => {
-    window.open(`https://reddit.com/api/v1/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&state=${process.env.STATE}&redirect_uri=${process.env.REDIRECT_URI}&duration=permanent&scope=identity,mysubreddits,subscribe,save`, "_self")
+    window.open(`https://reddit.com/api/v1/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&state=${process.env.STATE}&redirect_uri=${process.env.REDIRECT_URI}&duration=permanent&scope=identity,mysubreddits,subscribe,save,read`, "_self")
 }
   return (
     <div className='h-screen flex flex-col justify-center'>
