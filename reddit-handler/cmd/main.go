@@ -22,7 +22,7 @@ func main() {
 		Addr: "localhost:6379", // Use your Redis server address
 		DB:   0,                // Use the default DB
 	})
-	sa := option.WithCredentialsFile("../../reddit-newsletter-firebase-key.json")
+	sa := option.WithCredentialsFile("../reddit-newsletter-firebase-key.json")
 	app, err := firebase.NewApp(ctx, nil, sa)
 	if err != nil {
 		log.Fatalln(err)
@@ -52,7 +52,7 @@ func main() {
 	fmt.Println("Subreddits: %", subreddits)
 	defer client.Close()
 
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load("../.env"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 	// Access the environment variable
