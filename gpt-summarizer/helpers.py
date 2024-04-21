@@ -50,7 +50,7 @@ def get_gpt_output(
             },
         ],
         temperature=0,
-        max_tokens=800,
+        max_tokens=500,
     )
     raw_text = completion.choices[0].message.content
     title_start = raw_text.index("Newsletter Title:") + len("Newsletter Title:")
@@ -70,10 +70,18 @@ def get_gpt_output(
 
 def upload_summary_to_firebase(db, gpt_dict):
     subreddit = gpt_dict["subreddit"]
-    doc_ref = db.collection("daily_subreddit_summary").document(
-        f"{subreddit[2:]} - {date.today()}"
+    subreddit_doc_name = subreddit[2:]
+    doc_path = f"daily_subreddit_summary/{subreddit_doc_name}"
+    doc_ref = db.document(doc_path)
+    if doc_ref.get().exists == False:
+        subreddit_path = f"daily_subreddit_summary/{subreddit_doc_name}"
+        subreddit_doc = db.document(subreddit_path)
+        subreddit_doc.set({})
+    dates_subcollection_path = f"daily_subreddit_summary/{subreddit_doc_name}/dates"
+    summary_doc_ref = db.collection(dates_subcollection_path).document(
+        f"{date.today()}"
     )
-    doc_ref.set(gpt_dict)
+    summary_doc_ref.set(gpt_dict)
 
 
 def consume_queue(
