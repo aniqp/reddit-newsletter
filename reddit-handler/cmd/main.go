@@ -16,7 +16,7 @@ import (
 func main() {
 
 	accessClient := &http.Client{}
-	_, accessToken := reddit_handler.GetAccessToken(accessClient)
+	accessToken, _ := reddit_handler.GetAccessToken(accessClient)
 
 	var subreddits []string
 	ctx := context.Background()
