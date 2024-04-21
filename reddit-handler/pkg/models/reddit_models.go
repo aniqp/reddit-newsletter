@@ -1,6 +1,10 @@
 package reddit_models
 
 // SubredditResponse defines the structure of the subreddit response
+
+type AccessToken struct {
+	AccessToken string `json:"access_token"`
+}
 type SubredditResponse struct {
 	Kind string `json:"kind"`
 	Data struct {
