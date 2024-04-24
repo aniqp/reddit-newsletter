@@ -334,3 +334,21 @@ button.account{
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
+
+.circle-icon {
+  /* width: 40px; 
+  height: 40px; */
+  min-width: 50px;
+  /* border-radius: 50%; */
+  border-radius: 6px;
+  background-color: rgb(236, 236, 236); /* Set the background color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  padding: 8px;
+}
+
+.circle-icon:hover {
+  background-color: rgb(224, 224, 224);
+}

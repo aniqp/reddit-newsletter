@@ -44,11 +44,9 @@ export async function addNewUser(user) {
 export async function addUserToAllSubreddits(userId, subreddits){
     try {
         for (const subreddit of subreddits) {
-            const subredditId = subreddit.display_name;
+            const subredditId = subreddit.id;
             const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
-            if (!subredditUserRef.exists()) {
-                await setDoc(subredditUserRef, {});
-            }
+            await setDoc(subredditUserRef, {});
         }
     } catch (e) {
         console.error("Error adding user to all subreddits: ", e);
@@ -215,17 +213,17 @@ export async function getUserSubreddits(userId) {
  */
 export async function removeUserFromAllSubreddits(userId, subreddits){
     try {
-            for (const subreddit of subreddits) {
-            const subredditId = subreddit.id;
-            const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
-            const subredditUserRefSnapshot = await getDoc(subredditUserRef);
+        for (const subreddit of subreddits) {
+        const subredditId = subreddit.id;
+        const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
+        const subredditUserRefSnapshot = await getDoc(subredditUserRef);
 
-            if (subredditUserRefSnapshot.exists()) {
-                await deleteDoc(subredditUserRef);
-            }
+        if (subredditUserRefSnapshot.exists()) {
+            await deleteDoc(subredditUserRef);
+        }
 
-            // Check if that subreddit still has users
-            checkSubredditUserList(subredditId) 
+        // Check if that subreddit still has users
+        checkSubredditUserList(subredditId) 
         }
     } catch (e) {
         console.error("Error removing user from all subreddits: ", e);
