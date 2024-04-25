@@ -10,7 +10,7 @@ import {
   getUserSubreddits, 
   addNewUser,
   fetchUserEmail } from '@/db';
-import { setUserId, setEmail, setSubreddits, setUserData } from '@/redux/slice';
+import { setEmail, setSubreddits, setUserData } from '@/redux/slice';
 
 
 export default function LoginCallbackPage() {

@@ -89,7 +89,7 @@ const UserSubreddits = () => {
         <div className='flex'>
             <div className='w-10/12'>
                 <div className='flex w-full'>
-                    <div className='w-1/2 text-3xl font-bold mb-5'>Your Subreddits</div>
+                    <div className='w-1/2 text-3xl font-semibold mb-5'>Your Subreddits</div>
                     <div className='w-1/2 flex justify-end mb-4'>
                         <Tooltip title="Refresh Subreddits">
                             <button className='circle-icon flex justify-center items-center' onClick={handleUpdatingSubreddits}>
