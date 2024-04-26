@@ -7,7 +7,8 @@ import {
     getDoc, 
     getDocs, 
     updateDoc, 
-    deleteDoc 
+    deleteDoc ,
+    Timestamp
 } from 'firebase/firestore'
 
 /**
@@ -25,10 +26,13 @@ import {
 export async function addNewUser(user) {
     try {
         const userRef = doc(db, "users", user.id);
+        const joinedDate = Timestamp.fromDate(new Date());
+
         await setDoc(userRef, {
             accessToken: user.tokens.accessToken, 
             refreshToken: user.tokens.refreshToken,
             email: '',
+            joined: joinedDate,
         });
     } catch (e) {
         console.error("Error adding user: ", e);
@@ -170,13 +174,21 @@ export async function deleteUser(userId) {
  * @returns {Promise<Object|null>} - A promise that resolves to an object containing the email
  * address if the user exists, or null if the user does not exist.
  */
-export async function fetchUserEmail(userId) {
+export async function fetchUserData(userId) {
     const userRef = doc(db, 'users', userId);
     const docSnapshot = await getDoc(userRef);
 
     if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        return { email: userData.email }; 
+        console.log("Document data:", userData.joined)
+
+        // Convert Firestore timestamp to milliseconds
+        const milliseconds = userData.joined.seconds * 1000 + userData.joined.nanoseconds / 1000000;
+        const date = new Date(milliseconds);
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+
+        return { email: userData.email, joined: `${month} ${year}` }; 
     } else {
         console.log("No such document!");
         return null;

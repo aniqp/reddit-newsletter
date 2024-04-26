@@ -5,6 +5,7 @@ const initialState = {
   accessToken: '',
   email: '',
   subreddits: [],
+  joined: ''
 }
 
 export const userSlice = createSlice({
@@ -20,6 +21,9 @@ export const userSlice = createSlice({
     },
     setSubreddits: (state, action) => {
       state.subreddits = action.payload
+    },
+    setJoinedDate: (state, action) => {
+      state.joined = action.payload
     },
     updateStarredSubreddits: (state, action) => {
       console.log(action.payload)
@@ -38,6 +42,6 @@ export const userSlice = createSlice({
   },
 })
 
-export const { setUserData, setEmail, setSubreddits } = userSlice.actions
+export const { setUserData, setEmail, setJoinedDate, setSubreddits } = userSlice.actions
 
 export default userSlice.reducer

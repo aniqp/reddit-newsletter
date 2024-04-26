@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('/fonts.css');
 
 :root {
   --black-75: rgba(0, 0, 0, 0.75);
@@ -223,13 +222,13 @@ button.account{
   }
  }
 
- .login-background{
+.login-background {
   position: relative;
-  background-image: url('/Untitled.svg');
+  background-image: url('/header.svg'), url('/footer.svg');
   background-size: cover;
-  background-position: center;
+  background-position: top left, bottom right;
   background-repeat: no-repeat;
- }
+}
 
  .login-background::before {
   content: '';

@@ -3,8 +3,8 @@ import AccountSettings from '@/components/AccountSettings';
 
 export default function SubredditPage({ params }) { 
   return (
-    <div className='flex'>
-        <div className='w-full h-screen flex flex-col lg:flex-row pl-20 pt-10'>
+    <div className='flex-col'>
+        <div className='w-full h-screen flex flex-col lg:flex-row lg:pl-20 lg:pr-20 pl-7 pr-7 pt-10'>
           <div className='lg:w-1/3'>
             <AccountSettings />
           </div>

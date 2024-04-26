@@ -31,6 +31,7 @@ export default function AccountDetails() {
 }
 
 const Profile = ({ user }) => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const [updatedEmail, setUpdatedEmail] = useState(user.email);
   const [disabled, setDisabled] = useState(true);
@@ -76,15 +77,15 @@ const Profile = ({ user }) => {
               {user.id}
             </div>
             <div className='font-light text-sm'>
-            Joined August 2021
+            Joined {user.joined}
             </div>
           </div>
         </div>
-        <div className='flex-col mt-5 mb-20'>
+        <div className='flex-col mt-5'>
           <div className='font-semibold mb-2'>
             Email
           </div>
-          <div className='flex w-full items-center'>
+          <div className='flex w-full items-center mb-6'>
             <div className='w-2/3'>
               <Input 
               size="middle" 
@@ -103,6 +104,16 @@ const Profile = ({ user }) => {
               >Update</button>
             </div>
           </div>
+        </div>
+        <div className='opacity-40 flex lg:mb-16 mb-10'>
+          <button onClick={()=>{router.push('/login')}} className='flex'>
+            <div className='mr-3'>
+              <Image src="/log-out.png" alt="Exit" width={20} height={25} />
+            </div>
+            <div>
+              Logout
+            </div>
+          </button>
         </div>
       </div>
   )
@@ -140,7 +151,7 @@ const DeleteAccount = ({ user }) => {
         <div className='w-full mt-5'>
             <button onClick={showModal}className='delete-account-btn text-red-600 text-sm'>Delete Account</button>
         </div>
-        <Modal open={isModalOpen} footer={[]} width={400}>
+        <Modal open={isModalOpen} footer={[]} width={400} onCancel={handleCancel}>
           <div className='flex flex-col justify-center items-center my-5 mx-4'>
             <Image src="/bin.png" width={100} height={100} />
             <div className='text-2xl font-bold text-center my-5'>Are you sure you want to delete your account?</div>

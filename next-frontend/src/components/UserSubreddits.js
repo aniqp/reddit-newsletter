@@ -87,7 +87,7 @@ const UserSubreddits = () => {
     return (
     <div className='w-full overflow-scroll'>
         <div className='flex'>
-            <div className='w-10/12'>
+            <div className='w-full'>
                 <div className='flex w-full'>
                     <div className='w-1/2 text-3xl font-semibold mb-5'>Your Subreddits</div>
                     <div className='w-1/2 flex justify-end mb-4'>
