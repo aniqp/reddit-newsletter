@@ -7,7 +7,8 @@ import {
     getDoc, 
     getDocs, 
     updateDoc, 
-    deleteDoc 
+    deleteDoc ,
+    Timestamp
 } from 'firebase/firestore'
 
 /**
@@ -25,10 +26,13 @@ import {
 export async function addNewUser(user) {
     try {
         const userRef = doc(db, "users", user.id);
+        const joinedDate = Timestamp.fromDate(new Date());
+
         await setDoc(userRef, {
             accessToken: user.tokens.accessToken, 
             refreshToken: user.tokens.refreshToken,
             email: '',
+            joined: joinedDate,
         });
     } catch (e) {
         console.error("Error adding user: ", e);
@@ -44,11 +48,9 @@ export async function addNewUser(user) {
 export async function addUserToAllSubreddits(userId, subreddits){
     try {
         for (const subreddit of subreddits) {
-            const subredditId = subreddit.display_name;
+            const subredditId = subreddit.id;
             const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
-            if (!subredditUserRef.exists()) {
-                await setDoc(subredditUserRef, {});
-            }
+            await setDoc(subredditUserRef, {});
         }
     } catch (e) {
         console.error("Error adding user to all subreddits: ", e);
@@ -172,13 +174,21 @@ export async function deleteUser(userId) {
  * @returns {Promise<Object|null>} - A promise that resolves to an object containing the email
  * address if the user exists, or null if the user does not exist.
  */
-export async function fetchUserEmail(userId) {
+export async function fetchUserData(userId) {
     const userRef = doc(db, 'users', userId);
     const docSnapshot = await getDoc(userRef);
 
     if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        return { email: userData.email }; 
+        console.log("Document data:", userData.joined)
+
+        // Convert Firestore timestamp to milliseconds
+        const milliseconds = userData.joined.seconds * 1000 + userData.joined.nanoseconds / 1000000;
+        const date = new Date(milliseconds);
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+
+        return { email: userData.email, joined: `${month} ${year}` }; 
     } else {
         console.log("No such document!");
         return null;
@@ -215,17 +225,17 @@ export async function getUserSubreddits(userId) {
  */
 export async function removeUserFromAllSubreddits(userId, subreddits){
     try {
-            for (const subreddit of subreddits) {
-            const subredditId = subreddit.id;
-            const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
-            const subredditUserRefSnapshot = await getDoc(subredditUserRef);
+        for (const subreddit of subreddits) {
+        const subredditId = subreddit.id;
+        const subredditUserRef = doc(db, `subreddits/${subredditId}/users`, userId);
+        const subredditUserRefSnapshot = await getDoc(subredditUserRef);
 
-            if (subredditUserRefSnapshot.exists()) {
-                await deleteDoc(subredditUserRef);
-            }
+        if (subredditUserRefSnapshot.exists()) {
+            await deleteDoc(subredditUserRef);
+        }
 
-            // Check if that subreddit still has users
-            checkSubredditUserList(subredditId) 
+        // Check if that subreddit still has users
+        checkSubredditUserList(subredditId) 
         }
     } catch (e) {
         console.error("Error removing user from all subreddits: ", e);
@@ -328,7 +338,5 @@ export async function updateUserEmail(userId, email) {
           });
     }
 }
-
-
 
 
