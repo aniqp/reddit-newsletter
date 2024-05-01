@@ -23,7 +23,7 @@ const UserSubreddits = () => {
         () => [
             {
             title: 'Subreddit',
-            dataIndex: 'display_name_prefixed',
+            dataIndex: 'id',
             },
             {
                 title: 'Description',
