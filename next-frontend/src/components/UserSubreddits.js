@@ -18,10 +18,6 @@ const UserSubreddits = () => {
         console.log(user.subreddits)
     }, [user.id, user.subreddits, router])
 
-    if (!user.id) {
-        return null
-    }
-
     const handleAllSubreddits = async (value) => {
         console.log(user.subreddits)
         await updateAllSubredditSubscriptions(user.id, value)
@@ -34,6 +30,10 @@ const UserSubreddits = () => {
         await addUserSubreddits(user.id, subreddits);
         const subredditsFromDb = await getUserSubreddits(user.id);
         dispatch(setSubreddits(subredditsFromDb));
+    }
+
+    if (!user.id) {
+        return null
     }
 
     return (
