@@ -1,5 +1,5 @@
 import UserSubreddits from '@/components/UserSubreddits'
-import AccountSettings from '@/components/AccountSettings';
+import AccountSettings from '@/components/AccountDetails';
 
 export default function SubredditPage({ params }) { 
   return (
