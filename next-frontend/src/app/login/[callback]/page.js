@@ -9,8 +9,8 @@ import {
   addUserSubreddits, 
   getUserSubreddits, 
   addNewUser,
-  fetchUserEmail } from '@/db';
-import { setUserId, setEmail, setSubreddits, setUserData } from '@/redux/slice';
+  fetchUserData } from '@/db';
+import { setEmail, setSubreddits, setUserData, setJoinedDate } from '@/redux/slice';
 
 
 export default function LoginCallbackPage() {
@@ -45,16 +45,22 @@ export default function LoginCallbackPage() {
             await addUserSubreddits(user.id, subreddits);
             const subredditsFromDb = await getUserSubreddits(user.id);
 
+            const today = new Date();
+            const month = today.toLocaleString('default', { month: 'long' });
+            const year = today.getFullYear();
+            dispatch(setJoinedDate(`${month} ${year}`))
+
             dispatch(setSubreddits(subredditsFromDb));
             router.push(`/email/${user.id}`)
           } else {            
-            const userFromDb = await fetchUserEmail(user.id);
+            const userFromDb = await fetchUserData(user.id);
             await addUserSubreddits(user.id, subreddits);
             const subredditsFromDb = await getUserSubreddits(user.id);
             dispatch(setSubreddits(subredditsFromDb));
             
             // If existing user has not set email, redirect to email page
             if (userFromDb.email) {
+                dispatch(setJoinedDate(userFromDb.joined))
                 dispatch(setEmail(userFromDb.email));
                 router.push('/subreddits')
                 return
