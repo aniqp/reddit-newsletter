@@ -8,16 +8,6 @@ on:
 jobs:
   deploy-prod:
     runs-on: ubuntu-latest
-    env:
-      REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-      REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
-      REDDIT_AUTH_USERNAME: ${{ secrets.REDDIT_AUTH_USERNAME }}
-      REDDIT_AUTH_PASSWORD: ${{ secrets.REDDIT_AUTH_PASSWORD }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
-      EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
-      EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -37,6 +27,15 @@ jobs:
         run: |
           ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo 'Connection successful!'"
       - name: Deploy Docker Compose to EC2
+        env:
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+          REDDIT_AUTH_USERNAME: ${{ secrets.REDDIT_AUTH_USERNAME }}
+          REDDIT_AUTH_PASSWORD: ${{ secrets.REDDIT_AUTH_PASSWORD }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
         run: |
           ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
             set -x;  # Enable debugging
