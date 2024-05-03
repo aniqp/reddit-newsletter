@@ -1,0 +1,68 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    env:
+      REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+      REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+      REDDIT_AUTH_USERNAME: ${{ secrets.REDDIT_AUTH_USERNAME }}
+      REDDIT_AUTH_PASSWORD: ${{ secrets.REDDIT_AUTH_PASSWORD }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+      EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH client and rsync
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y openssh-client rsync
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_EC2_KEY }}" > ~/.ssh/ssh-key.pem
+          chmod 400 ~/.ssh/ssh-key.pem
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          
+      - name: Test connection to EC2
+        run: |
+          ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo 'Connection successful!'"
+      - name: Install Docker Requirements
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y docker.io &&
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
+          sudo chmod +x /usr/local/bin/docker-compose &&
+          sudo usermod -aG docker $USER;
+      - name: Deploy Docker Compose to EC2
+        run: |
+          ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
+            set -x;  # Enable debugging
+            if [ -d reddit-newsletter ]; 
+            then 
+              cd reddit-newsletter &&
+              git status &&
+              git pull --rebase &&
+              git status;
+            else
+              git config --global --replace-all user.name "Aniq Premji" &&
+              git config --global --replace-all user.email ${{ secrets.EMAIL_GITHUB }};
+              git clone https://github.com/aniqp/reddit-newsletter.git &&
+              cd reddit-newsletter
+              docker-compose up -d; 
+            fi'
+          ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
+            pwd;  # Print current working directory
+            if docker ps | grep -q keyword; 
+            then docker-compose down && docker-compose up -d --build; 
+            else docker-compose up -d --build; 
+            fi;'
