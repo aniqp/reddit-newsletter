@@ -64,15 +64,10 @@ jobs:
               git pull --rebase &&
               git status;
             else
-              git config --global --replace-all user.name "Aniq Premji" &&
-              git config --global --replace-all user.email ${{ secrets.EMAIL_GITHUB }};
               git clone https://github.com/aniqp/reddit-newsletter.git &&
-              cd reddit-newsletter
-              docker-compose up --build -d; 
-            fi'
-          ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
-            pwd;  # Print current working directory
-            if docker ps | grep -q keyword; 
-            then docker-compose down && docker-compose up -d --build; 
-            else docker-compose up -d --build; 
-            fi;'
+              cd reddit-newsletter;
+            fi
+            docker-compose down
+            docker-compose up -d --build;
+          '
+        
