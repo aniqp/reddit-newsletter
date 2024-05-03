@@ -59,7 +59,7 @@ jobs:
               git config --global --replace-all user.email ${{ secrets.EMAIL_GITHUB }};
               git clone https://github.com/aniqp/reddit-newsletter.git &&
               cd reddit-newsletter
-              docker-compose up -d; 
+              docker-compose up --build -d; 
             fi'
           ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
             pwd;  # Print current working directory
