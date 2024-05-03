@@ -40,11 +40,11 @@ jobs:
       - name: Upload Firebase Keys
         run: |
           # Decode the base64 string
-          echo ${{ secrets.REDDIT_NEWSLETTER_FIREBASE_KEY }} | base64 --decode > reddit-newsletter-firebase-key.json
+          echo "${{ secrets.REDDIT_NEWSLETTER_FIREBASE_KEY }}" | base64 --decode > reddit-newsletter-firebase-key.json
           # Transfer the file to the EC2 instance
-          scp -i {{ secrets.AWS_EC2_KEY }} reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/email-handler/reddit-newsletter-firebase-key.json
-          scp -i {{ secrets.AWS_EC2_KEY }} reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/gpt-summarizer/reddit-newsletter-firebase-key.json
-          scp -i {{ secrets.AWS_EC2_KEY }} reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/reddit-handler/reddit-newsletter-firebase-key.json
+          scp -i ~/.ssh/ssh-key.pem reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/email-handler/reddit-newsletter-firebase-key.json
+          scp -i ~/.ssh/ssh-key.pem reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/gpt-summarizer/reddit-newsletter-firebase-key.json
+          scp -i ~/.ssh/ssh-key.pem reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/reddit-handler/reddit-newsletter-firebase-key.json
       - name: Deploy Docker Compose to EC2
         env:
           REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
