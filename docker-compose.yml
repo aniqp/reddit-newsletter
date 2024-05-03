@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  reddit-handler:
+    build:
+      context: ./reddit-handler
+      dockerfile: 'Dockerfile'
+    environment:
+      REDDIT_USERNAME: ${REDDIT_USERNAME}
+      REDDIT_PASSWORD: ${REDDIT_PASSWORD}
+      REDDIT_AUTH_USERNAME: ${REDDIT_AUTH_USERNAME}
+      REDDIT_AUTH_PASSWORD: ${REDDIT_AUTH_PASSWORD}
+    depends_on:
+      - redis
+  gpt-summarizer:
+    build:
+      context: ./gpt-summarizer
+      dockerfile: 'Dockerfile'
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL}
+    depends_on:
+      - reddit-handler
+  email-handler:
+    build:
+      context: ./email-handler
+      dockerfile: 'Dockerfile'
+    environment:
+      EMAIL_SENDER: ${EMAIL_SENDER}
+      EMAIL_APP_PASSWORD: ${EMAIL_APP_PASSWORD}
+    depends_on:
+      - gpt-summarizer

@@ -9,22 +9,38 @@ import (
 
 	firebase "firebase.google.com/go"
 	"github.com/go-redis/redis/v8"
+	"github.com/robfig/cron/v3"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
 func main() {
+	ctx := context.Background()
+	c := cron.New()
+	// Scheduled for 11 pm everyday.
+	_, err := c.AddFunc("*/3 * * * *", func() {
+		runGetHotPostsAndComments(ctx)
+	})
+	if err != nil {
+		log.Fatal("Error scheduling the cron job:", err)
+	}
+
+	c.Start()
+
+	select {}
+}
+
+func runGetHotPostsAndComments(ctx context.Context) {
 
 	accessClient := &http.Client{}
 	accessToken, _ := reddit_handler.GetAccessToken(accessClient)
 
 	var subreddits []string
-	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379", // Use your Redis server address
-		DB:   0,                // Use the default DB
+		Addr: "redis:6379", // Use your Redis server address
+		DB:   0,            // Use the default DB
 	})
-	sa := option.WithCredentialsFile("../reddit-newsletter-firebase-key.json")
+	sa := option.WithCredentialsFile("reddit-newsletter-firebase-key.json")
 	app, err := firebase.NewApp(ctx, nil, sa)
 	if err != nil {
 		log.Fatalln(err)
@@ -65,4 +81,5 @@ func main() {
 
 		reddit_handler.AddToRedisQueue(hotPosts, rdb)
 	}
+	reddit_handler.AddToRedisQueue("done fetching", rdb)
 }

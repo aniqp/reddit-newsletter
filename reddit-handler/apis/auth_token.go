@@ -4,27 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	reddit_models "reddit-newsletter/pkg/models"
 	"strings"
-
-	"github.com/joho/godotenv"
 )
 
 func GetAccessToken(client *http.Client) (string, error) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		fmt.Printf("Error loading .env file: %v", err)
-		return "", err
-	}
 	accessTokenStruct := reddit_models.AccessToken{}
 
 	redditUsername := os.Getenv("REDDIT_USERNAME")
 	redditPassword := os.Getenv("REDDIT_PASSWORD")
 	redditAuthUsername := os.Getenv("REDDIT_AUTH_USERNAME")
 	redditAuthPassword := os.Getenv("REDDIT_AUTH_PASSWORD")
+	log.Println("Reddit Username " + redditUsername)
+	log.Println("Reddit Password " + redditPassword)
+	log.Println("Reddit Auth Username " + redditAuthUsername)
+	log.Println("Reddit Auth Password " + redditAuthPassword)
 
 	form := url.Values{}
 	form.Set("grant_type", "password")

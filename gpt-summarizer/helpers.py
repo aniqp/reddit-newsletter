@@ -68,7 +68,7 @@ def get_gpt_output(
     }
 
 
-def upload_summary_to_firebase(db, gpt_dict):
+def upload_summary_to_firebase(db, gpt_dict) -> str:
     subreddit = gpt_dict["subreddit"]
     subreddit_doc_name = subreddit[2:]
     doc_path = f"daily_subreddit_summary/{subreddit_doc_name}"
@@ -89,10 +89,15 @@ def consume_queue(
 ):
     while True:
         result = r.brpop(keys="hotPostsQueue", timeout=0)
-        json_data = result[1]
-        data_dict = json.loads(json_data)
-        subreddit_name = data_dict["subredditname"]
-        gpt_input = process_data(data_dict)
-        gpt_output = get_gpt_output(client, model, gpt_input, subreddit_name)
-        # print(f"Subreddit name: {subreddit_name}, GPT Output: {gpt_output}")
-        upload_summary_to_firebase(cred, gpt_output)
+        print(f"Result: {result}")
+        if result[1] == "done fetching":
+            r.publish("reddit-summarization", "done summarizing")
+            print("done summarizing message sent")
+        else:
+            json_data = result[1]
+            data_dict = json.loads(json_data)
+            subreddit_name = data_dict["subredditname"]
+            gpt_input = process_data(data_dict)
+            gpt_output = get_gpt_output(client, model, gpt_input, subreddit_name)
+            # print(f"Subreddit name: {subreddit_name}, GPT Output: {gpt_output}")
+            upload_summary_to_firebase(cred, gpt_output)
