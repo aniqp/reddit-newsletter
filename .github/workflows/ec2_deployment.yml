@@ -36,20 +36,6 @@ jobs:
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
-        run: |
-          ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
-            set -x;  # Enable debugging
-            if [ -d reddit-newsletter ]; 
-            then 
-              cd reddit-newsletter &&
-              git status &&
-              git pull --rebase &&
-              git status;
-            else
-              git clone https://github.com/aniqp/reddit-newsletter.git &&
-              cd reddit-newsletter;
-            fi
-            docker compose down
-            docker compose up -d --build;
-          '
+        if: ${{ env.REDDIT_USERNAME == '' }}
+        run: 'echo "echo the secret \"REDDIT_USERNAME\" has not been made; echo please go to \"settings \> secrets \> actions\" to create it"'
         
