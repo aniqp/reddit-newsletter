@@ -28,7 +28,7 @@ jobs:
           ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo 'Connection successful!'"
       - name: Export Env Variables to EC2
         run: |
-          ssh -i ~/.ssh/ssh-key.pem ec2-user@${{ secrets.AWS_EC2_CONN_ID }} "echo '
+          ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo '
             export REDDIT_USERNAME=${{ secrets.REDDIT_USERNAME }};
             export REDDIT_PASSWORD=${{ secrets.REDDIT_PASSWORD }};
             export REDDIT_AUTH_USERNAME=${{ secrets.REDDIT_AUTH_USERNAME }};
