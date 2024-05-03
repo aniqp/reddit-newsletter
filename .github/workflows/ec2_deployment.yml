@@ -52,8 +52,9 @@ jobs:
             sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           sudo apt-get update
           sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          sudo apt-get install docker-compose-plugin
+          docker compose version
           sudo docker run hello-world
-          sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
       - name: Deploy Docker Compose to EC2
         run: |
           ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
