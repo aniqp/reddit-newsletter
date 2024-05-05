@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
-	"github.com/joho/godotenv"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -202,11 +201,6 @@ func SendEmail(data email_models.EmailData, recipientEmail string) error {
 	htmlContent, err := generateEmailTemplate(data)
 	if err != nil {
 		return err
-	}
-
-	// Load environment variables
-	if err := godotenv.Load("../.env"); err != nil {
-		log.Fatal("Error loading .env file")
 	}
 
 	// Get email sender and password from environment variables
