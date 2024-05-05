@@ -8,10 +8,10 @@ services:
       context: ./reddit-handler
       dockerfile: 'Dockerfile'
     environment:
-      - REDDIT_USERNAME = ${REDDIT_USERNAME}
-      - REDDIT_PASSWORD = ${REDDIT_PASSWORD}
-      - REDDIT_AUTH_USERNAME = ${REDDIT_AUTH_USERNAME}
-      - REDDIT_AUTH_PASSWORD = ${REDDIT_AUTH_PASSWORD}
+      - REDDIT_USERNAME=${REDDIT_USERNAME}
+      - REDDIT_PASSWORD=${REDDIT_PASSWORD}
+      - REDDIT_AUTH_USERNAME=${REDDIT_AUTH_USERNAME}
+      - REDDIT_AUTH_PASSWORD=${REDDIT_AUTH_PASSWORD}
     depends_on:
       - redis
   gpt-summarizer:
