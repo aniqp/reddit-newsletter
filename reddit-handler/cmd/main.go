@@ -18,7 +18,7 @@ func main() {
 	ctx := context.Background()
 	c := cron.New()
 	// Scheduled for 11 pm everyday.
-	_, err := c.AddFunc("0 23 * * *", func() {
+	_, err := c.AddFunc("*/2 * * * *", func() {
 		runGetHotPostsAndComments(ctx)
 	})
 	if err != nil {
