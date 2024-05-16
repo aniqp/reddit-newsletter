@@ -47,6 +47,6 @@ jobs:
             else
               git clone https://github.com/aniqp/reddit-newsletter.git &&
               cd reddit-newsletter;
-              fi
+            fi
           '
         
