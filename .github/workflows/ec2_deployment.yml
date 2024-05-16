@@ -26,17 +26,6 @@ jobs:
       - name: Test connection to EC2
         run: |
           ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo 'Connection successful!'"
-      - name: Export Env Variables to EC2
-        run: |
-          ssh -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} "echo '
-            export REDDIT_USERNAME=${{ secrets.REDDIT_USERNAME }};
-            export REDDIT_PASSWORD=${{ secrets.REDDIT_PASSWORD }};
-            export REDDIT_AUTH_USERNAME=${{ secrets.REDDIT_AUTH_USERNAME }};
-            export REDDIT_AUTH_PASSWORD=${{ secrets.REDDIT_AUTH_PASSWORD }};
-            export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }};
-            export OPENAI_MODEL=${{ secrets.OPENAI_MODEL }};
-            export EMAIL_SENDER=${{ secrets.EMAIL_SENDER }};
-            export EMAIL_APP_PASSWORD=${{ secrets.EMAIL_APP_PASSWORD }};' >> ~/.bashrc"
       - name: Upload Firebase Keys
         run: |
           # Decode the base64 string
@@ -46,15 +35,6 @@ jobs:
           scp -i ~/.ssh/ssh-key.pem reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/gpt-summarizer/reddit-newsletter-firebase-key.json
           scp -i ~/.ssh/ssh-key.pem reddit-newsletter-firebase-key.json ubuntu@${{ secrets.AWS_EC2_CONN_ID }}:reddit-newsletter/reddit-handler/reddit-newsletter-firebase-key.json
       - name: Deploy Docker Compose to EC2
-        env:
-          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
-          REDDIT_AUTH_USERNAME: ${{ secrets.REDDIT_AUTH_USERNAME }}
-          REDDIT_AUTH_PASSWORD: ${{ secrets.REDDIT_AUTH_PASSWORD }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
-          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
-          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
         run: |
           ssh -T -i ~/.ssh/ssh-key.pem ubuntu@${{ secrets.AWS_EC2_CONN_ID }} '
             set -x;  # Enable debugging
@@ -67,9 +47,5 @@ jobs:
             else
               git clone https://github.com/aniqp/reddit-newsletter.git &&
               cd reddit-newsletter;
-            fi
-            docker compose down
-            docker compose rm -f
-            docker compose up -d --build;
           '
         
