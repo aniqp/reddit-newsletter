@@ -206,8 +206,6 @@ func SendEmail(data email_models.EmailData, recipientEmail string) error {
 	// Get email sender and password from environment variables
 	from := os.Getenv("EMAIL_SENDER")
 	pass := os.Getenv("EMAIL_APP_PASSWORD")
-	fmt.Println("from: ", from)
-	fmt.Println("pass: ", pass)
 	to := recipientEmail
 
 	// Compose the email message with MIME headers

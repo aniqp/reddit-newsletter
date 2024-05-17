@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -19,10 +18,6 @@ func GetAccessToken(client *http.Client) (string, error) {
 	redditPassword := os.Getenv("REDDIT_PASSWORD")
 	redditAuthUsername := os.Getenv("REDDIT_AUTH_USERNAME")
 	redditAuthPassword := os.Getenv("REDDIT_AUTH_PASSWORD")
-	log.Println("Reddit Username " + redditUsername)
-	log.Println("Reddit Password " + redditPassword)
-	log.Println("Reddit Auth Username " + redditAuthUsername)
-	log.Println("Reddit Auth Password " + redditAuthPassword)
 
 	form := url.Values{}
 	form.Set("grant_type", "password")
